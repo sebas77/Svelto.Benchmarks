@@ -1,0 +1,6 @@
+.vs/
+Benchmarks/ECS/obj/
+DictionaryTest/bin/
+DictionaryTest/obj/
+*.meta
+*.user
