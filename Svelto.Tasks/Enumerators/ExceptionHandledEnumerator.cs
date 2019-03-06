@@ -4,17 +4,19 @@ using System.Collections.Generic;
 
 namespace Svelto.Tasks.Enumerators
 {
-    public class ExceptionHandlingEnumerator : IEnumerator<TaskContract>
+    public class ExceptionHandledEnumerator : IEnumerator<TaskContract>
     {
         public bool succeeded { get; private set; }
         public Exception error { get; private set; }
 
-        public ExceptionHandlingEnumerator(IEnumerator enumerator)
+        public ExceptionHandledEnumerator(IEnumerator enumerator)
         {
             _enumerator = enumerator;
         }
 
-        object IEnumerator.Current { get { return _enumerator.Current; } }
+        public ExceptionHandledEnumerator(bool succededMock) { succeeded = succededMock; }
+
+        object IEnumerator.Current => _enumerator.Current;
 
         public bool MoveNext()
         {

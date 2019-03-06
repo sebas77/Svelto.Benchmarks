@@ -4,3 +4,7 @@ DictionaryTest/bin/
 DictionaryTest/obj/
 *.meta
 *.user
+Svelto.Tasks/obj/
+Svelto.ECS/obj/
+Svelto.ECS/bin/
+Svelto.Tasks/bin/

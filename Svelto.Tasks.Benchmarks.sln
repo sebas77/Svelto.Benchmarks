@@ -1,10 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svelto.Common", "Svelto.Tasks\Svelto.Common\Svelto.Common.csproj", "{F0D2AB6E-99D7-4FCF-9806-9B5E2356207D}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28701.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svelto.ECS", "Svelto.ECS\Svelto.ECS.csproj", "{8E88A369-4E1D-470D-BADE-B1D6B2A5B633}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Svelto.Tasks", "Svelto.Tasks\Svelto.Tasks\Svelto.Tasks.csproj", "{204B91BD-2CA1-4BBF-BC80-3CF76726141B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svelto.Common", "Svelto.Common\Svelto.Common.csproj", "{38356B58-B7E0-438F-8F55-51FF46E19FAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{AF0DB49F-2D43-4098-8276-47F84C8FDDC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Svelto.Tasks", "Svelto.Tasks\Svelto.Tasks.csproj", "{16D238BD-6318-4945-84D0-F448F1EDEEE2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryTest", "DictionaryTest\DictionaryTest.csproj", "{3D9BE957-1B79-453D-941D-5F59E2A20247}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,17 +17,27 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F0D2AB6E-99D7-4FCF-9806-9B5E2356207D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0D2AB6E-99D7-4FCF-9806-9B5E2356207D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0D2AB6E-99D7-4FCF-9806-9B5E2356207D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0D2AB6E-99D7-4FCF-9806-9B5E2356207D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{204B91BD-2CA1-4BBF-BC80-3CF76726141B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{204B91BD-2CA1-4BBF-BC80-3CF76726141B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{204B91BD-2CA1-4BBF-BC80-3CF76726141B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{204B91BD-2CA1-4BBF-BC80-3CF76726141B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF0DB49F-2D43-4098-8276-47F84C8FDDC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF0DB49F-2D43-4098-8276-47F84C8FDDC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF0DB49F-2D43-4098-8276-47F84C8FDDC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF0DB49F-2D43-4098-8276-47F84C8FDDC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E88A369-4E1D-470D-BADE-B1D6B2A5B633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E88A369-4E1D-470D-BADE-B1D6B2A5B633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E88A369-4E1D-470D-BADE-B1D6B2A5B633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E88A369-4E1D-470D-BADE-B1D6B2A5B633}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38356B58-B7E0-438F-8F55-51FF46E19FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38356B58-B7E0-438F-8F55-51FF46E19FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38356B58-B7E0-438F-8F55-51FF46E19FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38356B58-B7E0-438F-8F55-51FF46E19FAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16D238BD-6318-4945-84D0-F448F1EDEEE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16D238BD-6318-4945-84D0-F448F1EDEEE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16D238BD-6318-4945-84D0-F448F1EDEEE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16D238BD-6318-4945-84D0-F448F1EDEEE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D9BE957-1B79-453D-941D-5F59E2A20247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D9BE957-1B79-453D-941D-5F59E2A20247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D9BE957-1B79-453D-941D-5F59E2A20247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D9BE957-1B79-453D-941D-5F59E2A20247}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1D9620B-2EBE-4494-9D59-3E74ADC28814}
 	EndGlobalSection
 EndGlobal
