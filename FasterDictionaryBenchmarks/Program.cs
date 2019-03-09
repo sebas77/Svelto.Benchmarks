@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Running;
 using Svelto.DataStructures.Experimental;
@@ -22,65 +22,135 @@ namespace Svelto.DataStructures
 
     //[DisassemblyDiagnoser(printAsm: true, printSource: true)] // !!! use the new diagnoser!!
     //[RyuJitX64Job, ClrJob, MonoJob, CoreJob(baseline: true), CoreRtJob]
-    [MonoJob]
+    [MonoJob()]
     // [EtwProfiler]
     //   [HardwareCounters(HardwareCounter.BranchMispredictions,HardwareCounter.BranchInstructions)]
-    //[SimpleJob(RunStrategy.Monitoring, launchCount: 1, warmupCount: 2, targetCount: 4)]
+    [MaxWarmupCount(2)]
+    [MaxIterationCount(2)]
+    [MinWarmupCount(1)]
+    [MinIterationCount(1)]
+    [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     public class DictionaryBenchmark
     {
-        int dictionarysize;
-        FasterDictionary<int, Test> fasterDictionary;
-        Dictionary<int, Test> dictionary;
-        int[] numbers;
+        int                         dictionarysize;
+        FasterDictionary<uint, Test> fasterDictionary;
+        NewFasterDictionary<Test> fasterDictionary2;
+        Dictionary<uint, Test>       dictionary;
+        uint[]                       numbers;
+        Test[] tests;
 
         public DictionaryBenchmark()
         {
             dictionarysize = 10000000;
 
-            numbers = new int[dictionarysize];
+            numbers = new uint[dictionarysize];
+            tests = new Test[dictionarysize];
             var r = new Random();
-            for (int i = 0; i < dictionarysize; i++) numbers[i] = r.Next();
+            for (int i = 0; i < dictionarysize; i++) numbers[i] = (uint) r.Next();
+//            for (int i = 0; i < dictionarysize; i++) numbers[i] = (uint) i;
+            for (int i = 0; i < dictionarysize; i++) tests[i] = new Test(i);
 
-            fasterDictionary = new FasterDictionary<int, Test>();
-            dictionary = new Dictionary<int, Test>();
+            fasterDictionary = new FasterDictionary<uint, Test>(dictionarysize);
+            fasterDictionary2 = new NewFasterDictionary<Test>(dictionarysize);
+            dictionary = new Dictionary<uint, Test>(dictionarysize);
         }
 
-        [Benchmark(Description = "JustRunIt", Baseline = true)]
+        [GlobalSetup(Targets = new[] {nameof(NewGet2), nameof(NewGet), nameof(StandardGet)})]
+        public void GlobalSetupB()
+        {
+            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
+            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
+            for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
+        }
+
+        [BenchmarkCategory("Insert"), Benchmark(Baseline = true)]
         public void StandardInsert()
         {
             for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
         }
 
-        [Benchmark]
+        [BenchmarkCategory("Insert"), Benchmark]
         public void NewInsert()
         {
+            //for (int i = 0; i < dictionarysize; i++)
+              //  reduce(133, 3);
             for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
         }
-    }
-
-
-
-    class Program
-    {
-        static void Main(string[] args)
+        
+        [BenchmarkCategory("Insert"), Benchmark]
+        public void NewInsert2()
         {
-            //Tests();
-            //Profiling();
-            var summary = BenchmarkRunner.Run<DictionaryBenchmark>();
+            //for (int i = 0; i < dictionarysize; i++)
+              //  reduce2(133, 3);
+            for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
+        }
+        
+        [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
+        public void StandardGet()
+        {
+            Test X;
+            for (int i = 0; i < dictionarysize; i++)
+            {
+                X = dictionary[numbers[i]];
+            }
         }
 
-
-#if later
-
-        static void Tests()
+        [BenchmarkCategory("Get"), Benchmark]
+        public void NewGet()
         {
-            System.Console.WriteLine("it's happening");
-            ThreadPool.QueueUserWorkItem(Test2);
-
-            System.Console.ReadKey();
+            Test X;
+            for (int i = 0; i < dictionarysize; i++)
+            {
+                X = fasterDictionary[numbers[i]];
+            }
+        }
+        
+        [BenchmarkCategory("Get"), Benchmark]
+        public void NewGet2()
+        {
+            Test X;
+            for (int i = 0; i < dictionarysize; i++)
+            {
+                X = fasterDictionary2[numbers[i]];
+            }
+        }
+        
+//        [BenchmarkCategory("Get"), Benchmark]
+        public void NewGet3()
+        {
+            Test X;
+            for (int i = 0; i < dictionarysize; i++)
+            {
+                X = tests[numbers[i]];
+            }
         }
 
-        static void Test2(object state)
+        public void CheckCollisions()
+        {
+            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
+            for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
+            
+            Console.Log(fasterDictionary.Collisions.ToString());
+            Console.Log(fasterDictionary2.Collisions.ToString());
+        }
+        
+        static uint reduce(uint x, int N) {
+            
+            return (uint) (x % N);
+        }
+        
+        static uint reduce2(uint x, int N) 
+        {
+            unchecked
+            {
+                ulong hash = x;
+                hash ^= hash >> 32;
+                hash = (11400714819323198485 * hash) >> 32;
+                return (uint) ((long) hash * N >> 32) ;
+            }
+        }
+        
+        public static void Test2()
         {
             Random rand = new Random();
             
@@ -124,11 +194,8 @@ namespace Svelto.DataStructures
                 Console.Log(iterations.ToString());
             }
         }
-
-
-
-
-        private static void Profiling()
+        
+          public static void Profiling()
         {
             int dictionarysize = 10000000;
 
@@ -283,7 +350,38 @@ namespace Svelto.DataStructures
 
             System.Console.WriteLine(watch.ElapsedMilliseconds);
         }
-#endif
     }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            BenchmarkRunner.Run<DictionaryBenchmark>();
+           //new DictionaryBenchmark().CheckCollisions();
+           //DictionaryBenchmark.Profiling();
+           //DictionaryBenchmark.Test2();
+        }
+    }
+    
+    
+
+#if later
+
+        static void Tests()
+        {
+            System.Console.WriteLine("it's happening");
+            ThreadPool.QueueUserWorkItem(Test2);
+
+            System.Console.ReadKey();
+        }
+
+      
+
+
+
+
+      
+#endif
+    
 }
 

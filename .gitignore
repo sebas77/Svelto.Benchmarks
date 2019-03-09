@@ -8,3 +8,8 @@ Svelto.Tasks/obj/
 Svelto.ECS/obj/
 Svelto.ECS/bin/
 Svelto.Tasks/bin/
+.idea/
+FasterDictionaryBenchmarks/bin/
+FasterDictionaryBenchmarks/obj/
+Svelto.Common/bin/
+FasterDictionaryBenchmarks/BenchmarkDotNet.Artifacts/
