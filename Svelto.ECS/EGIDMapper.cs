@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Svelto.ECS.Internal;
 
 namespace Svelto.ECS
@@ -6,11 +7,12 @@ namespace Svelto.ECS
     {
         internal TypeSafeDictionary<T> map;
 
-        public ref T entity(EGID id)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Entity(EGID id)
         {
-                int count;
-                var index = map.FindElementIndex(id.entityID); 
-                return ref map.GetValuesArray(out count)[index];
+            int count;
+            var index = map.FindElementIndex(id.entityID);
+            return ref map.GetValuesArray(out count)[index];
         }
     }
 }

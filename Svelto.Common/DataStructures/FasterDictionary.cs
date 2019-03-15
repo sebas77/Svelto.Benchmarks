@@ -1,16 +1,59 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
- using System.Runtime.CompilerServices;
- using Svelto.Utilities;
+using System.Runtime.CompilerServices;
 
  namespace Svelto.DataStructures.Experimental
 {
-    public class FasterDictionary<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey>
+    public struct Node<TKey> : INode<TKey> where TKey : IComparable<TKey>
+    {
+        public int hashcode { get; set; }
+        public int previous { get; set; }
+        public int next { get; set; }
+        public TKey key { get; set; }
+    }
+    
+    public struct NodeInt : INode<int> 
+    {
+        public int  hashcode { get => key; set => key = value; }
+        public int  previous { get; set; }
+        public int  next     { get; set; }
+        public int  key      { get; set; }
+    }
+    
+    public sealed class FasterDictionary<TKey, TValue> : FasterDictionary<TKey, TValue, Node<TKey>> where TKey : IComparable<TKey>
+    {
+        public FasterDictionary(int dictionarysize):base(dictionarysize) {}
+        public FasterDictionary() {  }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override int Hash(TKey key) { return GetHashCode(); }
+    }
+    
+    public sealed class FasterDictionary<TValue> : FasterDictionary<int, TValue, NodeInt>
+    {
+        public FasterDictionary(int dictionarysize):base(dictionarysize) {}
+        public FasterDictionary() {  }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected override int Hash(int key) { return key; }
+    }
+    
+    public interface INode<TKey> where TKey : IComparable<TKey>
+    {
+        int hashcode { get; set;  }
+        int previous { get; set; }
+        int next { get; set; }
+        TKey key { get; set; }
+        
+    }
+    
+    public abstract class FasterDictionary<TKey, TValue, TNode> : IDictionary<TKey, TValue> where TKey : IComparable<TKey>
+     where TNode:struct, INode<TKey>
     {
         public FasterDictionary(int size)
         {
-            _valuesInfo = new Node[size];
+            _valuesInfo = new TNode[size];
             _values     = new TValue[size];
             _buckets    = new int[HashHelpers.GetPrime(size)];
         }
@@ -38,6 +81,7 @@ using System.Collections.Generic;
             get { return new ReadOnlyCollectionStruct<TValue>(_values, _freeValueCellIndex); }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TValue[] GetValuesArray(out int count)
         {
             count = _freeValueCellIndex;
@@ -93,8 +137,7 @@ using System.Collections.Generic;
 
         public bool ContainsKey(TKey key)
         {
-            uint findIndex;
-            if (FindIndex(key, _buckets, _valuesInfo, out findIndex))
+            if (FindIndex(key, _buckets, _valuesInfo, out _))
             {
                 return true;
             }
@@ -122,6 +165,7 @@ using System.Collections.Generic;
             throw new NotImplementedException();
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected uint GetValueIndex(TKey index)
         {
             return GetIndex(index, _buckets, _valuesInfo);
@@ -129,14 +173,13 @@ using System.Collections.Generic;
 
         public bool TryGetValue(TKey key, out TValue result)
         {
-            uint findIndex;
-            if (FindIndex(key, _buckets, _valuesInfo, out findIndex))
+            if (FindIndex(key, _buckets, _valuesInfo, out var findIndex))
             {
                 result = _values[findIndex];
                 return true;
             }
 
-            result = default(TValue);
+            result = default;
             return false;
         }
 
@@ -158,38 +201,37 @@ using System.Collections.Generic;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int Hash(TKey key)
-        {
-            return key.GetHashCode()& 0x7FFFFFFF;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static uint Reduce(uint x, uint N) 
+        static uint Reduce(uint value, uint N) 
         {
             {
-                if (x >= N)
+                if (value >= N)
                 {
-                    var hash = (11400714819323198485 * x);
+                    var hash = (11400714819323198485u * value);
                     hash >>= 32;
                     
                     return (uint) ((hash * N) >> 32);
                 }
 
-                return x;
+                return value;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]        
+        protected abstract int Hash(TKey key);
+
         bool AddValue(TKey key, ref TValue value)
         {
-            int hash        = Hash(key);
+            int hash = Hash(key);
             uint bucketIndex = Reduce((uint) hash, (uint) _buckets.Length);
 
             //buckets value -1 means it's empty
             var valueIndex = _buckets[bucketIndex] - 1;
-            
+
             if (valueIndex == -1)
+            {
                 //create the info node at the last position and fill it with the relevant information
-                _valuesInfo[_freeValueCellIndex] = new Node(ref key, hash);
+                _valuesInfo[_freeValueCellIndex] = new TNode {key = key, hashcode = hash, previous = -1, next = -1};
+            }
             else //collision or already exists
             {
                 {
@@ -213,7 +255,7 @@ using System.Collections.Generic;
                 //oops collision!
                 _collisions++;
                 //create a new node which previous index points to node currently pointed in the bucket
-                _valuesInfo[_freeValueCellIndex] = new Node(ref key, hash, valueIndex);
+                _valuesInfo[_freeValueCellIndex] = new TNode {key = key, hashcode = hash, previous = valueIndex, next = -1};
                 //update the next of the existing cell to point to the new one
                 //old one -> new one | old one <- next one
                 _valuesInfo[valueIndex].next = _freeValueCellIndex;
@@ -418,15 +460,14 @@ using System.Collections.Generic;
             return false;
         }
 
-        static uint GetIndex(TKey key, int[] buckets, Node[] valuesInfo)
+        uint GetIndex(TKey key, int[] buckets, TNode[] valuesInfo)
         {
-            uint findIndex;
-            if (FindIndex(key, buckets, valuesInfo, out findIndex)) return findIndex;
+            if (FindIndex(key, buckets, valuesInfo, out var findIndex)) return findIndex;
 
             throw new FasterDictionaryException("Key not found");
         }
 
-        static bool FindIndex(TKey key, int[] buckets, Node[] valuesInfo, out uint findIndex)
+        bool FindIndex(TKey key, int[] buckets, TNode[] valuesInfo, out uint findIndex)
         {
             int hash        = Hash(key);
             var bucketIndex = Reduce((uint) hash, (uint) buckets.Length);
@@ -447,7 +488,7 @@ using System.Collections.Generic;
             return false;
         }
 
-        static void UpdateLinkedList(int index, Node[] valuesInfo)
+        static void UpdateLinkedList(int index, TNode[] valuesInfo)
         {
             int next = valuesInfo[index].next;
             int previous = valuesInfo[index].previous; 
@@ -460,7 +501,7 @@ using System.Collections.Generic;
 
         public struct FasterDictionaryKeyValueEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
         {
-            public FasterDictionaryKeyValueEnumerator(FasterDictionary<TKey,TValue> dic):this()
+            public FasterDictionaryKeyValueEnumerator(FasterDictionary<TKey, TValue, TNode> dic):this()
             {
                 _dic = dic;
                 _index = -1;
@@ -496,36 +537,12 @@ using System.Collections.Generic;
                 get { throw new NotImplementedException(); }
             }
             
-            readonly FasterDictionary<TKey, TValue> _dic;
-            readonly int _count;
+            readonly FasterDictionary<TKey, TValue, TNode> _dic;
+            readonly int                                   _count;
             
             int _index;
         }
 
-        struct Node
-        {
-            public readonly TKey   key;
-            public readonly int hashcode;
-            public          int previous;
-            public          int next;
-
-            public Node(ref TKey key, int hash, int previousNode)
-            {
-                this.key = key;
-                hashcode = hash;
-                previous = previousNode;
-                next     = -1;
-            }
-
-            public Node(ref TKey key, int hash)
-            {
-                this.key = key;
-                hashcode = hash;
-                previous = -1;
-                next     = -1;
-            }
-        }
-        
         public struct FasterDictionaryKeys : ICollection<TKey>
         {
             internal FasterDictionaryKeys(FasterDictionary<TKey, TValue> dic):this()
@@ -601,13 +618,11 @@ using System.Collections.Generic;
             }
         }
 
-        
-        protected TValue[] _values;
-        
-        Node[] _valuesInfo;
-        int[]  _buckets;
-        int    _freeValueCellIndex;
-        public int    _collisions;
+        TValue[] _values;
+        TNode[]  _valuesInfo;
+        int[]    _buckets;
+        int      _freeValueCellIndex;
+        int     _collisions;
     }
 
     public class FasterDictionaryException : Exception

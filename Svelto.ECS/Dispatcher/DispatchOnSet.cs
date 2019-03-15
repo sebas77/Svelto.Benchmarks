@@ -11,7 +11,7 @@ namespace Svelto.ECS
         {
             Console.LogWarningDebug("This method is obsolete and shouldn't be used anymore");
             
-            _senderID    = new EGID(senderID, OBSOLETE_GROUP);
+            _senderID    = new EGID(senderID, (int) OBSOLETE_GROUP);
             _subscribers = new WeakEvent<EGID, T>();
         }
 
@@ -36,10 +36,7 @@ namespace Svelto.ECS
                 _subscribers.Invoke(_senderID, value);
             }
 
-            get 
-            {
-                return _value;
-            }
+            get => _value;
         }
         
         public void NotifyOnValueSet(Action<EGID, T> action)

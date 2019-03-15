@@ -13,3 +13,10 @@ FasterDictionaryBenchmarks/bin/
 FasterDictionaryBenchmarks/obj/
 Svelto.Common/bin/
 FasterDictionaryBenchmarks/BenchmarkDotNet.Artifacts/
+ArrayBenchmarks/BenchmarkDotNet.Artifacts/
+ArrayBenchmarks/bin/
+ArrayBenchmarks/obj/
+DictionaryBenchmarks/BenchmarkDotNet.Artifacts/
+DictionaryBenchmarks/bin/
+DictionaryBenchmarks/obj/
+SpanMemoryWrapper/obj/

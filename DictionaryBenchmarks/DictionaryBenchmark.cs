@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
@@ -22,7 +24,6 @@ namespace Svelto.DataStructures
 
     //[DisassemblyDiagnoser(printAsm: true, printSource: true)] // !!! use the new diagnoser!!
     //[RyuJitX64Job, ClrJob, MonoJob, CoreJob(baseline: true), CoreRtJob]
-    [MonoJob()]
     // [EtwProfiler]
     //   [HardwareCounters(HardwareCounter.BranchMispredictions,HardwareCounter.BranchInstructions)]
     [MaxWarmupCount(2)]
@@ -30,88 +31,80 @@ namespace Svelto.DataStructures
     [MinWarmupCount(1)]
     [MinIterationCount(1)]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
-    public class DictionaryBenchmark
+    public unsafe class DictionaryBenchmark
     {
         int                         dictionarysize;
+        FasterDictionary<Test> fasterDictionaryInt;
         FasterDictionary<uint, Test> fasterDictionary;
-        NewFasterDictionary<Test> fasterDictionary2;
         Dictionary<uint, Test>       dictionary;
-        uint[]                       numbers;
+        uint[]                       randomIndices;
         Test[] tests;
 
-        public DictionaryBenchmark()
+        [GlobalSetup]
+        public void GlobalSetup()
         {
             dictionarysize = 10000000;
 
-            numbers = new uint[dictionarysize];
+            randomIndices = new uint[dictionarysize];
             tests = new Test[dictionarysize];
             var r = new Random();
-            for (int i = 0; i < dictionarysize; i++) numbers[i] = (uint) r.Next();
-//            for (int i = 0; i < dictionarysize; i++) numbers[i] = (uint) i;
+            for (int i = 0; i < dictionarysize; i++) randomIndices[i] = (uint) r.Next();
             for (int i = 0; i < dictionarysize; i++) tests[i] = new Test(i);
 
             fasterDictionary = new FasterDictionary<uint, Test>(dictionarysize);
-            fasterDictionary2 = new NewFasterDictionary<Test>(dictionarysize);
+            fasterDictionaryInt = new FasterDictionary<Test>(dictionarysize);
             dictionary = new Dictionary<uint, Test>(dictionarysize);
         }
 
-        [GlobalSetup(Targets = new[] {nameof(NewGet2), nameof(NewGet), nameof(StandardGet)})]
-        public void GlobalSetupB()
-        {
-            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
-        }
-
+        [GlobalCleanup]
+        public void GlobalCleanUp()
+        {}
+        
         [BenchmarkCategory("Insert"), Benchmark(Baseline = true)]
-        public void StandardInsert()
+        public void StandardDictionaryInsert()
         {
-            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
+            for (int i = 0; i < dictionarysize; i++) dictionary[randomIndices[i]] = new Test(i);
         }
-
+    
         [BenchmarkCategory("Insert"), Benchmark]
-        public void NewInsert()
+        public void FasterDictionaryInsert()
         {
-            //for (int i = 0; i < dictionarysize; i++)
-              //  reduce(133, 3);
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
+            for (int i = 0; i < dictionarysize; i++) fasterDictionary[randomIndices[i]] = new Test(i);
         }
         
         [BenchmarkCategory("Insert"), Benchmark]
-        public void NewInsert2()
+        public void FasterDictionaryIntInsert()
         {
-            //for (int i = 0; i < dictionarysize; i++)
-              //  reduce2(133, 3);
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
+            for (int i = 0; i < dictionarysize; i++) fasterDictionaryInt[(int) randomIndices[i]] = new Test(i);
         }
         
-        [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
+       // [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
         public void StandardGet()
         {
             Test X;
             for (int i = 0; i < dictionarysize; i++)
             {
-                X = dictionary[numbers[i]];
+                X = dictionary[randomIndices[i]];
             }
         }
 
-        [BenchmarkCategory("Get"), Benchmark]
+      //  [BenchmarkCategory("Get"), Benchmark]
         public void NewGet()
         {
             Test X;
             for (int i = 0; i < dictionarysize; i++)
             {
-                X = fasterDictionary[numbers[i]];
+                X = fasterDictionary[randomIndices[i]];
             }
         }
         
-        [BenchmarkCategory("Get"), Benchmark]
+    //    [BenchmarkCategory("Get"), Benchmark]
         public void NewGet2()
         {
             Test X;
             for (int i = 0; i < dictionarysize; i++)
             {
-                X = fasterDictionary2[numbers[i]];
+       //         X = fasterDictionary2[numbers[i]];
             }
         }
         
@@ -121,17 +114,21 @@ namespace Svelto.DataStructures
             Test X;
             for (int i = 0; i < dictionarysize; i++)
             {
-                X = tests[numbers[i]];
+                X = tests[randomIndices[i]];
             }
         }
 
         public void CheckCollisions()
         {
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
+//            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
+            //for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
             
-            Console.Log(fasterDictionary.Collisions.ToString());
-            Console.Log(fasterDictionary2.Collisions.ToString());
+            //Console.Log(fasterDictionary.Collisions.ToString());
+            //Console.Log(fasterDictionary2.Collisions.ToString());
+
+            var array = (int *)Marshal.AllocHGlobal(dictionarysize * 4);
+            
+            for (int i = 0; i < dictionarysize; i++) array[i] = i;
         }
         
         static uint reduce(uint x, int N) {
@@ -356,32 +353,11 @@ namespace Svelto.DataStructures
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<DictionaryBenchmark>();
-           //new DictionaryBenchmark().CheckCollisions();
-           //DictionaryBenchmark.Profiling();
-           //DictionaryBenchmark.Test2();
+            //BenchmarkRunner.Run<DictionaryBenchmark>();
+            //BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, DefaultConfig.Instance);
+
+            var fasterDictionaryInt = new FasterDictionary<Test>(1000);
+            for (int i = 0; i < 1000; i++) fasterDictionaryInt[i] = new Test(i);
         }
     }
-    
-    
-
-#if later
-
-        static void Tests()
-        {
-            System.Console.WriteLine("it's happening");
-            ThreadPool.QueueUserWorkItem(Test2);
-
-            System.Console.ReadKey();
-        }
-
-      
-
-
-
-
-      
-#endif
-    
 }
-
