@@ -17,7 +17,6 @@ namespace Svelto.DataStructures
             this.i = i;
         }
     }
-   
 
     //[DisassemblyDiagnoser(printAsm: true, printSource: true)] // !!! use the new diagnoser!!
     [MonoJob, RyuJitX64Job]
@@ -118,7 +117,7 @@ namespace Svelto.DataStructures
             for (uint i = 0; i < dictionarySize; i++) fasterDictionary[i] = new Test((int) i);
         }
 
-//        [BenchmarkCategory("GetRandom"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("GetRandom"), Benchmark(Baseline = true)]
         public void GetRandom()
         {
             Test X = default;
@@ -129,7 +128,7 @@ namespace Svelto.DataStructures
             }
         }
 
-//        [BenchmarkCategory("GetRandom"), Benchmark]
+        [BenchmarkCategory("GetRandom"), Benchmark]
         public void FasterGetRandom()
         {
             Test X = default;
@@ -140,7 +139,7 @@ namespace Svelto.DataStructures
             }
         }
         
-//        [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
         public void Get()
         {
             Test X = default;
@@ -151,7 +150,7 @@ namespace Svelto.DataStructures
             }
         }
 
-//        [BenchmarkCategory("Get"), Benchmark]
+        [BenchmarkCategory("Get"), Benchmark]
         public void FasterGet()
         {
             Test X = default;
@@ -162,7 +161,7 @@ namespace Svelto.DataStructures
             }
         }
         
-//        [BenchmarkCategory("RemoveRandom"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("RemoveRandom"), Benchmark(Baseline = true)]
         public void RemoveRandom()
         {
             for (int i = 0; i < randomIndices.Length; i++)
@@ -171,7 +170,7 @@ namespace Svelto.DataStructures
             }
         }
 
-//        [BenchmarkCategory("RemoveRandom"), Benchmark]
+        [BenchmarkCategory("RemoveRandom"), Benchmark]
         public void FasterRemoveRandom()
         {
             for (int i = 0; i < randomIndices.Length; i++)
@@ -180,7 +179,7 @@ namespace Svelto.DataStructures
             }
         }
         
-//        [BenchmarkCategory("Remove"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("Remove"), Benchmark(Baseline = true)]
         public void Remove()
         {
             for (uint i = 0; i < dictionarySize; i++)
@@ -189,7 +188,7 @@ namespace Svelto.DataStructures
             }
         }
 
-//        [BenchmarkCategory("Remove"), Benchmark]
+        [BenchmarkCategory("Remove"), Benchmark]
         public void FasterRemove()
         {
             for (uint i = 0; i < dictionarySize; i++)
@@ -222,31 +221,31 @@ namespace Svelto.DataStructures
             dictionary.Clear();
         }
         
-//        [BenchmarkCategory("InsertFromEmpty"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("InsertFromEmpty"), Benchmark(Baseline = true)]
         public void InsertFromEmtpy()
         {
             for (int i = 0; i < dictionarySize; i++) dictionary.Add(randomIndices[i],  new Test(i));
         }
     
-//        [BenchmarkCategory("InsertFromEmpty"), Benchmark]
+        [BenchmarkCategory("InsertFromEmpty"), Benchmark]
         public void FasterInsertFromEmtpy()
         {
             for (int i = 0; i < dictionarySize; i++) fasterDictionary.Add(randomIndices[i],  new Test(i));
         }
         
-//        [BenchmarkCategory("LinearInsertInsertFromEmpty"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("LinearInsertInsertFromEmpty"), Benchmark(Baseline = true)]
         public void LinearInsertFromEmtpy()
         {
             for (int i = 0; i < dictionarySize; i++) dictionary.Add((uint) i,  new Test(i));
         }
     
-//        [BenchmarkCategory("LinearInsertInsertFromEmpty"), Benchmark]
+        [BenchmarkCategory("LinearInsertInsertFromEmpty"), Benchmark]
         public void FasterLinearInsertFromEmtpy()
         {
             for (uint i = 0; i < dictionarySize; i++) fasterDictionary.Add(i, new Test((int) i));
         }
         
-//        [BenchmarkCategory("IterateValues"), Benchmark(Baseline = true)]
+        [BenchmarkCategory("IterateValues"), Benchmark(Baseline = true)]
         public void IterateValues()
         {
             var dictionaryValues = dictionary.Values;
@@ -257,7 +256,7 @@ namespace Svelto.DataStructures
             }
         }
     
-//        [BenchmarkCategory("IterateValues"), Benchmark]
+        [BenchmarkCategory("IterateValues"), Benchmark]
         public void FasterIterateValues()
         {
             var readOnlyCollectionStruct = fasterDictionary.GetValuesArray(out int count);

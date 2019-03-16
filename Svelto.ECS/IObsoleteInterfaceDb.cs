@@ -11,7 +11,7 @@ namespace Svelto.ECS
         /// over EntityView
         /// </summary>
         [Obsolete]
-        ReadOnlyCollectionStruct<T> QueryEntityViews<T>(int group) where T : class, IEntityStruct;
+        ReadOnlyCollectionStruct<T> QueryEntityViews<T>(uint group) where T : class, IEntityStruct;
         [Obsolete]
         ReadOnlyCollectionStruct<T> QueryEntityViews<T>(ExclusiveGroup.ExclusiveGroupStruct group) where T : class, IEntityStruct;
         /// <summary>
@@ -22,7 +22,7 @@ namespace Svelto.ECS
         [Obsolete]
         bool TryQueryEntityView<T>(EGID egid, out T entityView) where T : class, IEntityStruct;
         [Obsolete]
-        bool TryQueryEntityView<T>(int id, ExclusiveGroup.ExclusiveGroupStruct group, out T entityView) where T : class, IEntityStruct;
+        bool TryQueryEntityView<T>(uint id, ExclusiveGroup.ExclusiveGroupStruct group, out T entityView) where T : class, IEntityStruct;
         /// <summary>
         /// All the EntityView related methods are left for back compatibility, but
         /// shouldn't be used anymore. Always pick EntityViewStruct or EntityStruct
@@ -31,7 +31,7 @@ namespace Svelto.ECS
         [Obsolete]
         T QueryEntityView<T>(EGID egid) where T : class, IEntityStruct;
         [Obsolete]
-        T QueryEntityView<T>(int id, ExclusiveGroup.ExclusiveGroupStruct group) where T : class, IEntityStruct;
+        T QueryEntityView<T>(uint id, ExclusiveGroup.ExclusiveGroupStruct group) where T : class, IEntityStruct;
         
         /// <summary>
         /// ECS is meant to work on a set of Entities. Working on a single entity is sometime necessary, but us    ing
@@ -45,15 +45,15 @@ namespace Svelto.ECS
         [Obsolete]
         void ExecuteOnEntity<T>(EGID egid, EntityAction<T> action) where T : IEntityStruct;
         [Obsolete]
-        void ExecuteOnEntity<T>(int id, int groupid, EntityAction<T> action) where T : IEntityStruct;
+        void ExecuteOnEntity<T>(uint id, uint groupid, EntityAction<T> action) where T : IEntityStruct;
         [Obsolete]
-        void ExecuteOnEntity<T>(int id,  ExclusiveGroup.ExclusiveGroupStruct groupid, EntityAction<T> action) where T : IEntityStruct;
+        void ExecuteOnEntity<T>(uint id,  ExclusiveGroup.ExclusiveGroupStruct groupid, EntityAction<T> action) where T : IEntityStruct;
         [Obsolete]
         void ExecuteOnEntity<T, W>(EGID egid, ref W value, EntityAction<T, W> action) where T : IEntityStruct;
         [Obsolete]
-        void ExecuteOnEntity<T, W>(int id,  int groupid, ref W value, EntityAction<T, W> action) where T : IEntityStruct;
+        void ExecuteOnEntity<T, W>(uint id,  uint groupid, ref W value, EntityAction<T, W> action) where T : IEntityStruct;
         [Obsolete]
-        void ExecuteOnEntity<T, W>(int id,  ExclusiveGroup.ExclusiveGroupStruct groupid, ref W value, EntityAction<T, W> action) where T : IEntityStruct;
+        void ExecuteOnEntity<T, W>(uint id,  ExclusiveGroup.ExclusiveGroupStruct groupid, ref W value, EntityAction<T, W> action) where T : IEntityStruct;
 
     }
 }

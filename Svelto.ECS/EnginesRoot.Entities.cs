@@ -93,7 +93,7 @@ namespace Svelto.ECS
       
         ///--------------------------------------------
 
-        void Preallocate<T>(int groupID, int size) where T : IEntityDescriptor, new()
+        void Preallocate<T>(uint groupID, int size) where T : IEntityDescriptor, new()
         {
             var entityViewsToBuild = EntityDescriptorTemplate<T>.descriptor.entitiesToBuild;
             var numberOfEntityViews              = entityViewsToBuild.Length;
@@ -130,7 +130,7 @@ namespace Svelto.ECS
                     dbList.AddCapacity(size);
                 
                 if (_groupsPerEntity.TryGetValue(entityViewType, out var groupedGroup) == false)
-                    groupedGroup = _groupsPerEntity[entityViewType] = new FasterDictionary<int, ITypeSafeDictionary>();
+                    groupedGroup = _groupsPerEntity[entityViewType] = new FasterDictionary<uint, ITypeSafeDictionary>();
                 
                 groupedGroup[groupID] = dbList;
             }
@@ -203,14 +203,14 @@ namespace Svelto.ECS
                 }
 
                 if (_groupsPerEntity.TryGetValue(entityViewType, out var groupedGroup) == false)
-                    groupedGroup = _groupsPerEntity[entityViewType] = new FasterDictionary<int, ITypeSafeDictionary>();
+                    groupedGroup = _groupsPerEntity[entityViewType] = new FasterDictionary<uint, ITypeSafeDictionary>();
                 
                 groupedGroup[toEntityGID.groupID] = dictionaryOfEntities;
             }
 
             if (fromTypeSafeDictionary.Has(entityGID.entityID) == false)
             {
-                throw new EntityNotFoundException(entityGID.entityID, entityGID.groupID, entityViewType);                
+                throw new EntityNotFoundException(entityGID, entityViewType);                
             }
             fromTypeSafeDictionary.MoveEntityFromDictionaryAndEngines(entityGID, toEntityGID, dictionaryOfEntities, 
                                                                       _entityEngines, ref profiler);
@@ -225,8 +225,9 @@ namespace Svelto.ECS
             }
         }
 
-        void RemoveGroupAndEntitiesFromDB(int groupID, Type entityDescriptor)
+        void RemoveGroupAndEntitiesFromDB(uint groupID, Type entityDescriptor)
         {
+            throw new NotImplementedException();
           /*  var profiler = new PlatformProfiler();
             using (profiler.StartNewSession("Remove Group Of Entities"))
             {
@@ -242,7 +243,7 @@ namespace Svelto.ECS
             }*/
         }
 
-        void RemoveGroupAndEntitiesFromDB(int groupID)
+        void RemoveGroupAndEntitiesFromDB(uint groupID)
         {
             var profiler = new PlatformProfiler();
             using (profiler.StartNewSession("Remove Group"))

@@ -7,7 +7,7 @@ namespace Svelto.ECS
 {
     public partial class EnginesRoot
     {
-        class DoubleBufferedEntitiesToAdd<T> where T : FasterDictionary<int, Dictionary<Type, ITypeSafeDictionary>>, new()
+        class DoubleBufferedEntitiesToAdd<T> where T : FasterDictionary<uint, Dictionary<Type, ITypeSafeDictionary>>, new()
         {
             readonly T _entityViewsToAddBufferA = new T();
             readonly T _entityViewsToAddBufferB = new T();

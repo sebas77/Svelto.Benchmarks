@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Svelto.DataStructures.DictionaryBenchmark</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.4, OS=Windows 10.0.17134.648 (1803/April2018Update/Redstone4)
+Intel Core i7-6700K CPU 4.00GHz (Skylake), 1 CPU, 8 logical and 4 physical cores
+Frequency=3914059 Hz, Resolution=255.4893 ns, Timer=TSC
+  [Host]    : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3362.0
+  Mono      : Mono 5.18.1 (Visual Studio), 64bit 
+  RyuJitX64 : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3362.0
+</code></pre>
+<pre><code>Jit=RyuJit  Platform=X64  InvocationCount=1  
+</code></pre>
+
+<table>
+<thead><tr><th>               Method</th><th>Job</th><th>Runtime</th><th>UnrollFactor</th><th>  Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th>
+</tr>
+</thead><tbody><tr><td>RandomInsert</td><td>Mono</td><td>Mono</td><td>16</td><td>1,157.051 ms</td><td>9.8378 ms</td><td>9.2023 ms</td><td>1,155.453 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterRandomInsert</td><td>Mono</td><td>Mono</td><td>16</td><td>1,144.384 ms</td><td>19.1445 ms</td><td>17.9078 ms</td><td>1,143.439 ms</td><td>0.99</td><td>0.01</td>
+</tr><tr><td>LinearInsert</td><td>Mono</td><td>Mono</td><td>16</td><td>155.294 ms</td><td>4.4085 ms</td><td>8.9054 ms</td><td>151.972 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterLinearInsert</td><td>Mono</td><td>Mono</td><td>16</td><td>112.635 ms</td><td>1.5178 ms</td><td>1.3455 ms</td><td>111.921 ms</td><td>0.70</td><td>0.05</td>
+</tr><tr><td>GetRandom</td><td>Mono</td><td>Mono</td><td>16</td><td>814.317 ms</td><td>9.0403 ms</td><td>7.5491 ms</td><td>815.993 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterGetRandom</td><td>Mono</td><td>Mono</td><td>16</td><td>804.241 ms</td><td>6.9576 ms</td><td>5.8099 ms</td><td>805.618 ms</td><td>0.99</td><td>0.01</td>
+</tr><tr><td>Get</td><td>Mono</td><td>Mono</td><td>16</td><td>130.000 ms</td><td>1.0300 ms</td><td>0.9634 ms</td><td>130.121 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterGet</td><td>Mono</td><td>Mono</td><td>16</td><td>84.981 ms</td><td>1.3049 ms</td><td>1.2206 ms</td><td>84.844 ms</td><td>0.65</td><td>0.01</td>
+</tr><tr><td>RemoveRandom</td><td>Mono</td><td>Mono</td><td>16</td><td>264.220 ms</td><td>3.4297 ms</td><td>3.2081 ms</td><td>263.359 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterRemoveRandom</td><td>Mono</td><td>Mono</td><td>16</td><td>276.978 ms</td><td>5.4150 ms</td><td>9.1950 ms</td><td>273.573 ms</td><td>1.06</td><td>0.05</td>
+</tr><tr><td>Remove</td><td>Mono</td><td>Mono</td><td>16</td><td>54.172 ms</td><td>0.9387 ms</td><td>0.7329 ms</td><td>54.088 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterRemove</td><td>Mono</td><td>Mono</td><td>16</td><td>41.371 ms</td><td>0.5023 ms</td><td>0.4699 ms</td><td>41.177 ms</td><td>0.76</td><td>0.01</td>
+</tr><tr><td>IterateValues</td><td>Mono</td><td>Mono</td><td>16</td><td>56.544 ms</td><td>0.6377 ms</td><td>0.5965 ms</td><td>56.276 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterIterateValues</td><td>Mono</td><td>Mono</td><td>16</td><td>8.841 ms</td><td>0.1303 ms</td><td>0.1155 ms</td><td>8.821 ms</td><td>0.16</td><td>0.00</td>
+</tr><tr><td>InsertFromEmtpy</td><td>Mono</td><td>Mono</td><td>1</td><td>288.754 ms</td><td>6.8444 ms</td><td>7.6076 ms</td><td>285.830 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterInsertFromEmtpy</td><td>Mono</td><td>Mono</td><td>1</td><td>435.804 ms</td><td>8.5576 ms</td><td>8.0048 ms</td><td>433.467 ms</td><td>1.51</td><td>0.05</td>
+</tr><tr><td>LinearInsertFromEmtpy</td><td>Mono</td><td>Mono</td><td>1</td><td>278.482 ms</td><td>1.5456 ms</td><td>1.3702 ms</td><td>278.076 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterLinearInsertFromEmtpy</td><td>Mono</td><td>Mono</td><td>1</td><td>408.326 ms</td><td>5.3396 ms</td><td>4.9946 ms</td><td>406.638 ms</td><td>1.47</td><td>0.02</td>
+</tr><tr><td>RandomInsert</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>1,068.786 ms</td><td>10.4863 ms</td><td>8.7565 ms</td><td>1,066.500 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterRandomInsert</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>1,032.400 ms</td><td>20.4896 ms</td><td>28.7236 ms</td><td>1,022.684 ms</td><td>0.96</td><td>0.03</td>
+</tr><tr><td>LinearInsert</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>114.405 ms</td><td>1.5125 ms</td><td>1.2630 ms</td><td>114.450 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterLinearInsert</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>48.417 ms</td><td>0.4309 ms</td><td>0.3819 ms</td><td>48.316 ms</td><td>0.42</td><td>0.01</td>
+</tr><tr><td>GetRandom</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>750.068 ms</td><td>16.9162 ms</td><td>18.1002 ms</td><td>746.399 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterGetRandom</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>549.622 ms</td><td>10.9352 ms</td><td>22.5830 ms</td><td>544.079 ms</td><td>0.75</td><td>0.04</td>
+</tr><tr><td>Get</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>92.497 ms</td><td>1.8407 ms</td><td>2.3934 ms</td><td>92.189 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterGet</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>48.474 ms</td><td>1.1534 ms</td><td>3.3461 ms</td><td>46.844 ms</td><td>0.51</td><td>0.03</td>
+</tr><tr><td>RemoveRandom</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>239.423 ms</td><td>4.9032 ms</td><td>8.4578 ms</td><td>235.712 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterRemoveRandom</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>220.601 ms</td><td>11.0386 ms</td><td>32.2000 ms</td><td>207.192 ms</td><td>0.90</td><td>0.13</td>
+</tr><tr><td>Remove</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>65.519 ms</td><td>1.7428 ms</td><td>4.9723 ms</td><td>63.130 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterRemove</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>27.785 ms</td><td>0.2351 ms</td><td>0.1963 ms</td><td>27.778 ms</td><td>0.41</td><td>0.04</td>
+</tr><tr><td>IterateValues</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>28.598 ms</td><td>0.4229 ms</td><td>0.3531 ms</td><td>28.461 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterIterateValues</td><td>RyuJitX64</td><td>Clr</td><td>16</td><td>5.867 ms</td><td>0.1138 ms</td><td>0.1118 ms</td><td>5.837 ms</td><td>0.20</td><td>0.01</td>
+</tr><tr><td>InsertFromEmtpy</td><td>RyuJitX64</td><td>Clr</td><td>1</td><td>319.075 ms</td><td>5.9402 ms</td><td>5.5564 ms</td><td>319.257 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterInsertFromEmtpy</td><td>RyuJitX64</td><td>Clr</td><td>1</td><td>343.699 ms</td><td>6.7956 ms</td><td>10.9736 ms</td><td>343.752 ms</td><td>1.08</td><td>0.03</td>
+</tr><tr><td>LinearInsertFromEmtpy</td><td>RyuJitX64</td><td>Clr</td><td>1</td><td>320.576 ms</td><td>6.1983 ms</td><td>6.8894 ms</td><td>319.185 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>FasterLinearInsertFromEmtpy</td><td>RyuJitX64</td><td>Clr</td><td>1</td><td>319.072 ms</td><td>6.3039 ms</td><td>10.3576 ms</td><td>321.658 ms</td><td>0.99</td><td>0.04</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -36,22 +36,19 @@ namespace Svelto.ECS
                                     case EntitySubmitOperationType.Swap:
                                         SwapEntityGroup(entitiesOperations[i].builders,
                                                         entitiesOperations[i].entityDescriptor,
-                                                        new EGID(entitiesOperations[i].ID,
-                                                                 entitiesOperations[i].fromGroupID),
-                                                        new EGID(entitiesOperations[i].toID,
-                                                                 entitiesOperations[i].toGroupID));
+                                                        entitiesOperations[i].fromID,
+                                                        entitiesOperations[i].toID);
                                         break;
                                     case EntitySubmitOperationType.Remove:
                                         MoveEntity(entitiesOperations[i].builders,
-                                                   new EGID(entitiesOperations[i].ID,
-                                                            entitiesOperations[i].fromGroupID),
+                                                   entitiesOperations[i].fromID,
                                                    entitiesOperations[i].entityDescriptor, new EGID());
                                         break;
                                     case EntitySubmitOperationType.RemoveGroup:
                                         if (entitiesOperations[i].entityDescriptor == null)
-                                            RemoveGroupAndEntitiesFromDB(entitiesOperations[i].fromGroupID);
+                                            RemoveGroupAndEntitiesFromDB(entitiesOperations[i].fromID.groupID);
                                         else
-                                            RemoveGroupAndEntitiesFromDB(entitiesOperations[i].fromGroupID,
+                                            RemoveGroupAndEntitiesFromDB(entitiesOperations[i].fromID.groupID,
                                                                          entitiesOperations[i].entityDescriptor);
 
                                         break;
@@ -60,11 +57,7 @@ namespace Svelto.ECS
                             catch (Exception e)
                             {
                                 var str = "Crash while executing Entity Operation"
-                                   .FastConcat(entitiesOperations[i].type.ToString()).FastConcat(" id: ")
-                                   .FastConcat(entitiesOperations[i].ID).FastConcat(" to id: ")
-                                   .FastConcat(entitiesOperations[i].toID).FastConcat(" from groupid: ")
-                                   .FastConcat(entitiesOperations[i].fromGroupID).FastConcat(" to groupid: ")
-                                   .FastConcat(entitiesOperations[i].toGroupID);
+                                   .FastConcat(entitiesOperations[i].type.ToString());
 #if RELAXED_ECS
                                 Console.LogException(str.FastConcat(" ", entitiesOperations[i].trace), e);
 #else
@@ -105,13 +98,13 @@ namespace Svelto.ECS
         }
 
         void AddEntityViewsToTheDBAndSuitableEngines(
-            FasterDictionary<int, Dictionary<Type, ITypeSafeDictionary>> groupsOfEntitiesToSubmit,
+            FasterDictionary<uint, Dictionary<Type, ITypeSafeDictionary>> groupsOfEntitiesToSubmit,
             PlatformProfiler profiler)
         {
             //each group is indexed by entity view type. for each type there is a dictionary indexed by entityID
             foreach (var groupOfEntitiesToSubmit in groupsOfEntitiesToSubmit)
             {
-                int groupID = groupOfEntitiesToSubmit.Key;
+                var groupID = groupOfEntitiesToSubmit.Key;
 
                 //if the group doesn't exist in the current DB let's create it first
                 if (_groupEntityDB.TryGetValue(groupID, out var groupDB) == false)
@@ -125,7 +118,7 @@ namespace Svelto.ECS
 
                     if (_groupsPerEntity.TryGetValue(entityViewTypeSafeDictionary.Key, out var groupedGroup) == false)
                         groupedGroup = _groupsPerEntity[entityViewTypeSafeDictionary.Key] =
-                            new FasterDictionary<int, ITypeSafeDictionary>();
+                            new FasterDictionary<uint, ITypeSafeDictionary>();
 
                     //Fill the DB with the entity views generate this frame.
                     dbDic.FillWithIndexedEntities(entityViewTypeSafeDictionary.Value);
@@ -147,8 +140,7 @@ namespace Svelto.ECS
             }
         }
 
-        readonly DoubleBufferedEntitiesToAdd<FasterDictionary<int, Dictionary<Type, ITypeSafeDictionary>>>
-            _groupedEntityToAdd;
+        readonly DoubleBufferedEntitiesToAdd<FasterDictionary<uint, Dictionary<Type, ITypeSafeDictionary>>> _groupedEntityToAdd;
 
         readonly IEntitySubmissionScheduler        _scheduler;
         readonly FasterList<EntitySubmitOperation> _transientEntitiesOperations;

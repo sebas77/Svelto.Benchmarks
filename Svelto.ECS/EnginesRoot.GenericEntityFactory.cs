@@ -9,7 +9,7 @@
                 _weakEngine = weakReference;
             }
 
-            public EntityStructInitializer BuildEntity<T>(int entityID,  ExclusiveGroup.ExclusiveGroupStruct groupStructId, object[] implementors) where T : IEntityDescriptor, new()
+            public EntityStructInitializer BuildEntity<T>(uint entityID,  ExclusiveGroup.ExclusiveGroupStruct groupStructId, object[] implementors) where T : IEntityDescriptor, new()
             {
                 return _weakEngine.Target.BuildEntity<T>(new EGID(entityID, groupStructId), implementors);
             }
@@ -24,7 +24,7 @@
                 return _weakEngine.Target.BuildEntity(egid, entityDescriptor, implementors);
             }
 
-            public EntityStructInitializer BuildEntity<T>(int entityID,  ExclusiveGroup.ExclusiveGroupStruct groupStructId, T descriptorEntity, object[] implementors)  where T:IEntityDescriptor
+            public EntityStructInitializer BuildEntity<T>(uint entityID,  ExclusiveGroup.ExclusiveGroupStruct groupStructId, T descriptorEntity, object[] implementors)  where T:IEntityDescriptor
             {
                 return _weakEngine.Target.BuildEntity(new EGID(entityID, groupStructId), descriptorEntity, implementors);
             }

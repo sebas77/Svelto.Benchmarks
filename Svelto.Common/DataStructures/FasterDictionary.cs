@@ -38,9 +38,9 @@ namespace Svelto.DataStructures.Experimental
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TValue[] GetValuesArray(out int count)
+        public TValue[] GetValuesArray(out uint count)
         {
-            count = _freeValueCellIndex;
+            count = (uint) _freeValueCellIndex;
 
             return _values;
         }
@@ -103,7 +103,7 @@ namespace Svelto.DataStructures.Experimental
 
         public bool Remove(KeyValuePair<TKey, TValue> item) { throw new NotImplementedException(); }
 
-        uint GetValueIndex(TKey index) { return GetIndex(index, _buckets, _valuesInfo); }
+        protected uint GetValueIndex(TKey index) { return GetIndex(index, _buckets, _valuesInfo); }
 
         public bool TryGetValue(TKey key, out TValue result)
         {
@@ -351,7 +351,7 @@ namespace Svelto.DataStructures.Experimental
 
         //When read the offset must be offset by -1 again to be the real one. In this way
         //I avoid to initialize the array to -1
-        bool FindIndex(TKey key, out uint findIndex)
+        protected bool FindIndex(TKey key, out uint findIndex)
         {
             int  hash        = Hash(key);
             uint bucketIndex = Reduce((uint) hash, (uint) _buckets.Length);
@@ -520,7 +520,7 @@ namespace Svelto.DataStructures.Experimental
         }
 
 
-        TValue[] _values;
+        protected TValue[] _values;
 
         Node[]  _valuesInfo;
         int[]   _buckets;

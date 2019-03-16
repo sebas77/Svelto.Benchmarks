@@ -10,7 +10,7 @@ namespace Svelto.ECS
     {
         readonly ulong _GID;
         
-        public EGID(int entityID, ExclusiveGroup.ExclusiveGroupStruct groupID) : this()
+        public EGID(uint entityID, ExclusiveGroup.ExclusiveGroupStruct groupID) : this()
         {
             DBC.ECS.Check.Require(entityID < bit22, "the entityID value is outside the range");
             DBC.ECS.Check.Require(groupID < bit20, "the groupID value is outside the range");
@@ -22,16 +22,16 @@ namespace Svelto.ECS
         const uint bit20 = 0b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_1111_1111_1111_1111_1111;
         const long bit42 = 0b0000_0000_0000_0000_0000_0011_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
 
-        public int entityID
+        public uint entityID
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return (int) (_GID & bit22); }
+            get { return (uint) (_GID & bit22); }
         }
 
         public ExclusiveGroup.ExclusiveGroupStruct groupID =>
-            new ExclusiveGroup.ExclusiveGroupStruct((int) ((_GID >> 22) & bit20));
+            new ExclusiveGroup.ExclusiveGroupStruct((uint) ((_GID >> 22) & bit20));
 
-        ulong maskedGID => _GID & bit42;
+        public uint maskedGID => (uint) _GID >> 42;
 
         public static bool operator ==(EGID obj1, EGID obj2)
         {
@@ -42,48 +42,49 @@ namespace Svelto.ECS
         {
             return obj1.maskedGID != obj2.maskedGID;
         }
+//            22       20        22        
+//        | realid | groupid | entityID |
         
-        internal static ulong MAKE_GLOBAL_ID(int entityId, int groupId, uint realId)
+        static ulong MAKE_GLOBAL_ID(uint entityId, uint groupId, uint realId)
         {
-            return ((uint)groupId & bit20) << 22 | ((uint)entityId & bit22) | (realId & bit22) << (22+20);
+            return (((ulong)realId & bit22) << (22+20)) | (((ulong)groupId & bit20) << 22) | ((ulong)entityId & bit22);
         }
 
-        public static explicit operator int(EGID id)
+        public static explicit operator uint(EGID id)
         {
             return id.entityID;
         }
         
         public static explicit operator ulong(EGID id)
         {
-            return id._GID;
+            return id._GID & bit42;
         }
 
         public bool Equals(EGID other)
         {
-            return maskedGID == other.maskedGID;
+            return _GID == other._GID;
         }
 
         public bool Equals(EGID x, EGID y)
         {
-            return x.maskedGID == y.maskedGID;
+            return x._GID == y._GID;
         }
 
-        public int GetHashCode(EGID egid)
-        {
-            var hash = 11400714819323198485u * egid.maskedGID;
-            hash >>= 32;
-                    
-            return (int) ((hash * uint.MaxValue) >> 32);
-        }
+        public int GetHashCode(EGID egid) { return (int) _GID.GetHashCode(); }
 
         public int CompareTo(EGID other)
         {
-            return maskedGID.CompareTo(other.maskedGID);
+            return _GID.CompareTo(other._GID);
         }
         
-        internal EGID(int entityID, int groupID) : this()
+        internal EGID(uint entityID, uint groupID) : this()
         {
             _GID = MAKE_GLOBAL_ID(entityID, groupID, 0);
+        }
+        
+        internal EGID(uint entityID, uint groupID, uint realid) : this()
+        {
+            _GID = MAKE_GLOBAL_ID(entityID, groupID, realid);
         }
         
         internal EGID(ulong egid) : this()

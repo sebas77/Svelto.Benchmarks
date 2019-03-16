@@ -15,11 +15,10 @@ namespace Svelto.ECS
 #endif        
         void CheckRemoveEntityID(EGID entityID, IEntityDescriptor descriptorEntity)
         {
-
-            Dictionary<Type, ITypeSafeDictionary> group;
-            var                                   descriptorEntitiesToBuild = descriptorEntity.entitiesToBuild;
             
-            if (_groupEntityDB.TryGetValue(entityID.groupID, out group))
+            var descriptorEntitiesToBuild = descriptorEntity.entitiesToBuild;
+            
+            if (_groupEntityDB.TryGetValue(entityID.groupID, out Dictionary<Type, ITypeSafeDictionary> @group))
             {
                 for (int i = 0; i < descriptorEntitiesToBuild.Length; i++)
                 {
