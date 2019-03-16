@@ -8,7 +8,8 @@
     <DebugSymbols>true</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>FasterDictionaryBenchmarks</RootNamespace>
-    <TargetFrameworks>net472;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+    <LangVersion>7.1</LangVersion>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

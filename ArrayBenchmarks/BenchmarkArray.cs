@@ -7,9 +7,12 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-
 namespace Svelto.DataStructures
 {
+    /// <summary>
+    /// The objective of this benchmark is just proving that using managed arrays is good enough!
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public unsafe class UnmanagedMemoryManager<T> : MemoryManager<T>
     {
         readonly int    _elementCount;

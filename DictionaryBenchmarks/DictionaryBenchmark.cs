@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Running;
 using Svelto.DataStructures.Experimental;
 
@@ -23,329 +20,252 @@ namespace Svelto.DataStructures
    
 
     //[DisassemblyDiagnoser(printAsm: true, printSource: true)] // !!! use the new diagnoser!!
-    //[RyuJitX64Job, ClrJob, MonoJob, CoreJob(baseline: true), CoreRtJob]
+    [MonoJob, RyuJitX64Job]
+    //[RyuJitX64Job]
     // [EtwProfiler]
     //   [HardwareCounters(HardwareCounter.BranchMispredictions,HardwareCounter.BranchInstructions)]
-    [MaxWarmupCount(2)]
-    [MaxIterationCount(2)]
-    [MinWarmupCount(1)]
-    [MinIterationCount(1)]
+    //[MaxWarmupCount(2)]
+    //[MaxIterationCount(2)]
+    //[MinWarmupCount(1)]
+    //[MinIterationCount(1)]
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
-    public unsafe class DictionaryBenchmark
+    public class DictionaryBenchmark
     {
-        int                         dictionarysize;
-        FasterDictionary<Test> fasterDictionaryInt;
+        const int                    dictionarySize = 10_000_000;
         FasterDictionary<uint, Test> fasterDictionary;
         Dictionary<uint, Test>       dictionary;
         uint[]                       randomIndices;
-        Test[] tests;
 
-        [GlobalSetup]
-        public void GlobalSetup()
+        public DictionaryBenchmark()
         {
-            dictionarysize = 10000000;
-
-            randomIndices = new uint[dictionarysize];
-            tests = new Test[dictionarysize];
-            var r = new Random();
-            for (int i = 0; i < dictionarysize; i++) randomIndices[i] = (uint) r.Next();
-            for (int i = 0; i < dictionarysize; i++) tests[i] = new Test(i);
-
-            fasterDictionary = new FasterDictionary<uint, Test>(dictionarysize);
-            fasterDictionaryInt = new FasterDictionary<Test>(dictionarysize);
-            dictionary = new Dictionary<uint, Test>(dictionarysize);
+            randomIndices = new uint[dictionarySize];
+            var r                                                     = new Random();
+            for (int i = 0; i < dictionarySize; i++) randomIndices[i] = (uint) r.Next();
         }
 
-        [GlobalCleanup]
-        public void GlobalCleanUp()
-        {}
-        
-        [BenchmarkCategory("Insert"), Benchmark(Baseline = true)]
-        public void StandardDictionaryInsert()
+        [GlobalSetup]
+        public void StandardSetup()
         {
-            for (int i = 0; i < dictionarysize; i++) dictionary[randomIndices[i]] = new Test(i);
+            fasterDictionary = new FasterDictionary<uint, Test>(dictionarySize);
+            dictionary = new Dictionary<uint, Test>(dictionarySize);
+        }
+        
+        [GlobalSetup(Targets = new[]
+        {
+            nameof(GetRandom), nameof(FasterGetRandom), nameof(IterateValues), nameof(FasterIterateValues),
+            
+        })]
+        public void GlobalSetupRandom()
+        {
+            fasterDictionary = new FasterDictionary<uint, Test>(dictionarySize);
+            dictionary       = new Dictionary<uint, Test>(dictionarySize);
+            for (int i = 0; i < dictionarySize; i++) dictionary[randomIndices[i]]       = new Test(i);
+            for (int i = 0; i < dictionarySize; i++) fasterDictionary[randomIndices[i]] = new Test(i);
+        }
+        
+        [GlobalSetup(Targets = new[]
+        {
+            nameof(RemoveRandom), nameof(FasterRemoveRandom),
+        })]
+        public void GlobalSetupRemoveRandom()
+        {
+            fasterDictionary = new FasterDictionary<uint, Test>(dictionarySize);
+            dictionary       = new Dictionary<uint, Test>(dictionarySize);
+            for (int i = 0; i < dictionarySize; i++) dictionary[randomIndices[i]]       = new Test(i);
+            for (int i = 0; i < dictionarySize; i++) fasterDictionary[randomIndices[i]] = new Test(i);
+        }
+        
+        [GlobalSetup(Targets = new[] { nameof(Get), nameof(FasterGet)})]
+        public void GlobalSetupGet()
+        {
+            fasterDictionary = new FasterDictionary<uint, Test>(dictionarySize);
+            dictionary       = new Dictionary<uint, Test>(dictionarySize);
+            for (int i = 0; i < dictionarySize; i++) dictionary[(uint) i]       = new Test(i);
+            for (int i = 0; i < dictionarySize; i++) fasterDictionary[(uint) i] = new Test(i);
+        }
+        
+        [GlobalSetup(Targets = new[] { nameof(Remove), nameof(FasterRemove) })]
+        public void GlobalSetupRemove()
+        {
+            fasterDictionary = new FasterDictionary<uint, Test>(dictionarySize);
+            dictionary       = new Dictionary<uint, Test>(dictionarySize);
+            for (int i = 0; i < dictionarySize; i++) dictionary[(uint) i]       = new Test(i);
+            for (int i = 0; i < dictionarySize; i++) fasterDictionary[(uint) i] = new Test(i);
+        }
+
+
+        [BenchmarkCategory("Insert"), Benchmark(Baseline = true)]
+        public void RandomInsert()
+        {
+            for (int i = 0; i < dictionarySize; i++) dictionary[randomIndices[i]] = new Test(i);
         }
     
         [BenchmarkCategory("Insert"), Benchmark]
-        public void FasterDictionaryInsert()
+        public void FasterRandomInsert()
         {
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[randomIndices[i]] = new Test(i);
+            for (int i = 0; i < dictionarySize; i++) fasterDictionary[randomIndices[i]] = new Test(i);
         }
         
-        [BenchmarkCategory("Insert"), Benchmark]
-        public void FasterDictionaryIntInsert()
+        [BenchmarkCategory("LinearInsert"), Benchmark(Baseline = true)]
+        public void LinearInsert()
         {
-            for (int i = 0; i < dictionarysize; i++) fasterDictionaryInt[(int) randomIndices[i]] = new Test(i);
+            for (int i = 0; i < dictionarySize; i++) dictionary[(uint) i] = new Test(i);
         }
-        
-       // [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
-        public void StandardGet()
+    
+        [BenchmarkCategory("LinearInsert"), Benchmark]
+        public void FasterLinearInsert()
         {
-            Test X;
-            for (int i = 0; i < dictionarysize; i++)
+            for (uint i = 0; i < dictionarySize; i++) fasterDictionary[i] = new Test((int) i);
+        }
+
+//        [BenchmarkCategory("GetRandom"), Benchmark(Baseline = true)]
+        public void GetRandom()
+        {
+            Test X = default;
+            for (int i = 0; i < dictionarySize; i++)
             {
                 X = dictionary[randomIndices[i]];
+                X.i = 1;
             }
         }
 
-      //  [BenchmarkCategory("Get"), Benchmark]
-        public void NewGet()
+//        [BenchmarkCategory("GetRandom"), Benchmark]
+        public void FasterGetRandom()
         {
-            Test X;
-            for (int i = 0; i < dictionarysize; i++)
+            Test X = default;
+            for (int i = 0; i < dictionarySize; i++)
             {
                 X = fasterDictionary[randomIndices[i]];
+                X.i = 1;
             }
         }
         
-    //    [BenchmarkCategory("Get"), Benchmark]
-        public void NewGet2()
+//        [BenchmarkCategory("Get"), Benchmark(Baseline = true)]
+        public void Get()
         {
-            Test X;
-            for (int i = 0; i < dictionarysize; i++)
+            Test X = default;
+            for (uint i = 0; i < dictionarySize; i++)
             {
-       //         X = fasterDictionary2[numbers[i]];
+                X   = dictionary[i];
+                X.i = 1;
             }
         }
-        
+
 //        [BenchmarkCategory("Get"), Benchmark]
-        public void NewGet3()
+        public void FasterGet()
         {
-            Test X;
-            for (int i = 0; i < dictionarysize; i++)
+            Test X = default;
+            for (uint i = 0; i < dictionarySize; i++)
             {
-                X = tests[randomIndices[i]];
-            }
-        }
-
-        public void CheckCollisions()
-        {
-//            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
-            //for (int i = 0; i < dictionarysize; i++) fasterDictionary2[numbers[i]] = new Test(i);
-            
-            //Console.Log(fasterDictionary.Collisions.ToString());
-            //Console.Log(fasterDictionary2.Collisions.ToString());
-
-            var array = (int *)Marshal.AllocHGlobal(dictionarysize * 4);
-            
-            for (int i = 0; i < dictionarysize; i++) array[i] = i;
-        }
-        
-        static uint reduce(uint x, int N) {
-            
-            return (uint) (x % N);
-        }
-        
-        static uint reduce2(uint x, int N) 
-        {
-            unchecked
-            {
-                ulong hash = x;
-                hash ^= hash >> 32;
-                hash = (11400714819323198485 * hash) >> 32;
-                return (uint) ((long) hash * N >> 32) ;
+                X   = fasterDictionary[i];
+                X.i = 1;
             }
         }
         
-        public static void Test2()
+//        [BenchmarkCategory("RemoveRandom"), Benchmark(Baseline = true)]
+        public void RemoveRandom()
         {
-            Random rand = new Random();
-            
-            FasterDictionary<int, int>[] dic = new FasterDictionary<int, int>[10];
-
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < randomIndices.Length; i++)
             {
-                dic[i] = new FasterDictionary<int, int>();
+                dictionary.Remove(randomIndices[i]);
             }
+        }
 
-            long iterations = 0;
-            
-            while (true)
+//        [BenchmarkCategory("RemoveRandom"), Benchmark]
+        public void FasterRemoveRandom()
+        {
+            for (int i = 0; i < randomIndices.Length; i++)
             {
-                for (int i = 0; i < 10; i++)
-                {
-                    var next = rand.Next();
-                    if (next % 3 == 0)
-                    {
-                        var key = next % 30000;
-                        dic[i][key] = next;
-                        if (dic[i].ContainsKey(key) == false)
-                            throw new Exception("asd");
-                    }
-                }
-                
-                for (int i = 0; i < 10; i++)
-                {
-                    var next = rand.Next();
-                    if (next % 3 == 0)
-                    {
-                        var key = next % 30000;
-                        dic[i].Remove(key);
-                        if (dic[i].ContainsKey(key) == true)
-                            throw new Exception("asd");
-                    }
-                }
-
-                iterations++;
-                
-                Console.Log(iterations.ToString());
+                fasterDictionary.Remove(randomIndices[i]);
             }
         }
         
-          public static void Profiling()
+//        [BenchmarkCategory("Remove"), Benchmark(Baseline = true)]
+        public void Remove()
         {
-            int dictionarysize = 10000000;
+            for (uint i = 0; i < dictionarySize; i++)
+            {
+                dictionary.Remove(i);
+            }
+        }
 
-            int[] numbers = new int[dictionarysize];
-            var r = new Random();
-            for (int i = 0; i < dictionarysize; i++) numbers[i] = r.Next();
+//        [BenchmarkCategory("Remove"), Benchmark]
+        public void FasterRemove()
+        {
+            for (uint i = 0; i < dictionarySize; i++)
+            {
+                fasterDictionary.Remove(i);
+            }
+        }
+        
+        [IterationSetup(Targets = new[] { nameof(InsertFromEmtpy), 
+            nameof(FasterInsertFromEmtpy),
+            nameof(LinearInsertFromEmtpy),
+            nameof(FasterLinearInsertFromEmtpy) })]
+        public void IterationSetupEmpty()
+        {
+            randomIndices = new uint[dictionarySize];
+            for (int i = 0; i < dictionarySize; i++) randomIndices[i] = (uint) (i + i);
 
-            FasterDictionary<int, Test> fasterDictionary = new FasterDictionary<int, Test>();
-            Dictionary<int, Test> dictionary = new Dictionary<int, Test>();
-
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-
-            System.Console.WriteLine("insert");
-            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i); 
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-/*
-            fasterDictionary = new FasterDictionary<int, Test>();
-            dictionary = new Dictionary<int, Test>();
-            System.Console.WriteLine("add after new");
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) dictionary.Add(numbers[i], new Test(i));
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary.Add(numbers[i], new Test(i));
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-            */
-            fasterDictionary = new FasterDictionary<int, Test>(dictionarysize);
-            dictionary = new Dictionary<int, Test>();
-            System.Console.WriteLine("insert after new with presize");
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            dictionary.Clear();
+            fasterDictionary = new FasterDictionary<uint, Test>();
+            dictionary       = new Dictionary<uint, Test>();
+        }
+        
+        [IterationCleanup(Targets = new[] { nameof(InsertFromEmtpy), 
+            nameof(FasterInsertFromEmtpy),
+            nameof(LinearInsertFromEmtpy),
+            nameof(FasterLinearInsertFromEmtpy) })]
+        public void IterationCleanEmpty()
+        {
             fasterDictionary.Clear();
-            System.Console.WriteLine("insert after clear");
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) dictionary[numbers[i]] = new Test(i);
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++) fasterDictionary[numbers[i]] = new Test(i);
-            watch.Stop();
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            System.Console.WriteLine("read");
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++)
+            fasterDictionary.Trim();
+            dictionary.Clear();
+        }
+        
+//        [BenchmarkCategory("InsertFromEmpty"), Benchmark(Baseline = true)]
+        public void InsertFromEmtpy()
+        {
+            for (int i = 0; i < dictionarySize; i++) dictionary.Add(randomIndices[i],  new Test(i));
+        }
+    
+//        [BenchmarkCategory("InsertFromEmpty"), Benchmark]
+        public void FasterInsertFromEmtpy()
+        {
+            for (int i = 0; i < dictionarySize; i++) fasterDictionary.Add(randomIndices[i],  new Test(i));
+        }
+        
+//        [BenchmarkCategory("LinearInsertInsertFromEmpty"), Benchmark(Baseline = true)]
+        public void LinearInsertFromEmtpy()
+        {
+            for (int i = 0; i < dictionarySize; i++) dictionary.Add((uint) i,  new Test(i));
+        }
+    
+//        [BenchmarkCategory("LinearInsertInsertFromEmpty"), Benchmark]
+        public void FasterLinearInsertFromEmtpy()
+        {
+            for (uint i = 0; i < dictionarySize; i++) fasterDictionary.Add(i, new Test((int) i));
+        }
+        
+//        [BenchmarkCategory("IterateValues"), Benchmark(Baseline = true)]
+        public void IterateValues()
+        {
+            var dictionaryValues = dictionary.Values;
+            foreach (var value in dictionaryValues)
             {
-                Test JapaneseCalendar;
-                JapaneseCalendar = dictionary[numbers[i]];
+                var test = value;
+                test.i = 1;
             }
-
-            watch.Stop();
-
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < dictionarysize; i++)
+        }
+    
+//        [BenchmarkCategory("IterateValues"), Benchmark]
+        public void FasterIterateValues()
+        {
+            var readOnlyCollectionStruct = fasterDictionary.GetValuesArray(out int count);
+            for (int i = 0; i < count; i++)
             {
-                Test JapaneseCalendar;
-                JapaneseCalendar = fasterDictionary[numbers[i]];
+                var test = readOnlyCollectionStruct[i];
+                test.i = 1;
             }
-
-            watch.Stop();
-
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            System.Console.WriteLine("iterate values");
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < 1; i++)
-            {
-                Test JapaneseCalendar;
-                foreach (var VARIABLE in dictionary.Values)
-                {
-                    JapaneseCalendar = VARIABLE;
-                }
-            }
-
-            watch.Stop();
-
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            watch.Reset();
-            watch.Start();
-            for (int i = 0; i < 1; i++)
-            {
-                Test JapaneseCalendar;
-                int count;
-                var buffer = fasterDictionary.GetValuesArray(out count);
-                for (int j = 0; j < count; j++)
-                {
-                    JapaneseCalendar = buffer[j];
-                }
-            }
-
-            watch.Stop();
-
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            System.Console.WriteLine("remove");
-            watch.Reset();
-                        watch.Start();
-                        for (int i = 0; i < dictionarysize; i++)
-                        {
-                            dictionary.Remove(numbers[i]);
-                        }
-
-                        watch.Stop();
-
-                        System.Console.WriteLine(watch.ElapsedMilliseconds);
-
-            watch.Reset();
-                        watch.Start();
-                        for (int i = 0; i < dictionarysize; i++)
-                        {
-                            fasterDictionary.Remove(numbers[i]);
-                        }
-
-                        watch.Stop();
-
-            System.Console.WriteLine(watch.ElapsedMilliseconds);
         }
     }
 
@@ -353,11 +273,8 @@ namespace Svelto.DataStructures
     {
         static void Main(string[] args)
         {
-            //BenchmarkRunner.Run<DictionaryBenchmark>();
+            BenchmarkRunner.Run<DictionaryBenchmark>();
             //BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, DefaultConfig.Instance);
-
-            var fasterDictionaryInt = new FasterDictionary<Test>(1000);
-            for (int i = 0; i < 1000; i++) fasterDictionaryInt[i] = new Test(i);
         }
     }
 }

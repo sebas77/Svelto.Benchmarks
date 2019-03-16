@@ -6,9 +6,9 @@
     <StartupObject />
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <AllowUnsaf eBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>FasterDictionaryBenchmarks</RootNamespace>
-    <TargetFrameworks>net472;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
