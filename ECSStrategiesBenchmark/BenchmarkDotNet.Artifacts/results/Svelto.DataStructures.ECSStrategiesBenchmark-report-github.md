@@ -11,10 +11,12 @@ Job=Mono  Runtime=Mono
 ```
 |                     Method |      Mean |     Error |    StdDev |
 |--------------------------- |----------:|----------:|----------:|
-| SeparateArraysStrategyReal |  4.909 ms | 0.0567 ms | 0.0531 ms |
-|          SparseSetStrategy |  4.381 ms | 0.0399 ms | 0.0373 ms |
-|               CopyStrategy |  9.601 ms | 0.1148 ms | 0.1074 ms |
+| SeparateArraysStrategyReal |  4.864 ms | 0.0481 ms | 0.0427 ms |
+|          SparseSetStrategy |  4.336 ms | 0.1142 ms | 0.1012 ms |
+|         SparseHashStrategy | 15.366 ms | 0.3371 ms | 0.5347 ms |
+|               CopyStrategy |  9.399 ms | 0.1770 ms | 0.1817 ms |
 |                            |           |           |           |
-|     SeparateArraysStrategy |  4.363 ms | 0.0624 ms | 0.0584 ms |
-|      SparseSetStrategyReal |  4.968 ms | 0.0454 ms | 0.0402 ms |
-|           CopyStrategyReal | 10.372 ms | 0.0701 ms | 0.0621 ms |
+|     SeparateArraysStrategy |  4.284 ms | 0.0231 ms | 0.0205 ms |
+|      SparseSetStrategyReal |  4.928 ms | 0.0492 ms | 0.0461 ms |
+|     SparseHashStrategyReal | 15.661 ms | 0.1962 ms | 0.1835 ms |
+|           CopyStrategyReal | 10.330 ms | 0.2009 ms | 0.2816 ms |

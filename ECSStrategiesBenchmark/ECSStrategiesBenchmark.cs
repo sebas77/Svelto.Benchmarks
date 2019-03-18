@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
+using Svelto.DataStructures.Experimental;
 
 namespace Svelto.DataStructures
 {
@@ -32,17 +33,20 @@ namespace Svelto.DataStructures
         Vector3[][] _positionsSeparate;
         Vector4[][] _rotationsSeparate;
         Vector3[][] _velocitiesSeparate;
-        
+
         Vector3[] _positionsSet;
         Vector4[] _rotationsSet;
         Vector3[] _velocitiesSet;
+
+        Test[][] _separateArraysStrategy;
+        int[]    _sparseSet1;
+        int[]    _sparseSet2;
         
-        Test[][] _separateArraysStrategy; 
-        int[] _sparseSet1;
-        int[] _sparseSet2;
-        
+        FasterDictionary<int, int> _sparseHash1;
+        FasterDictionary<int, int> _sparseHash2;
+
         Test[] _sparseSetEntities;
-        int CACHE_MISSES = 500;
+        int    CACHE_MISSES = 500;
 
         [GlobalSetup]
         public void StandardSetup()
@@ -53,9 +57,9 @@ namespace Svelto.DataStructures
             {
                 _separateArraysStrategy[i] = new Test[dictionarySize];
             }
-            
+
             _positionsSeparate = new Vector3[CACHE_MISSES][];
-                _rotationsSeparate = new Vector4[CACHE_MISSES][];
+            _rotationsSeparate = new Vector4[CACHE_MISSES][];
             _velocitiesSeparate = new Vector3[CACHE_MISSES][];
             for (int i = 0; i < CACHE_MISSES; i++)
             {
@@ -63,11 +67,15 @@ namespace Svelto.DataStructures
                 _rotationsSeparate[i] = new Vector4[dictionarySize];
                 _velocitiesSeparate[i] = new Vector3[dictionarySize];
             }
-            
+
             _sparseSet1 = new int[dictionarySize * CACHE_MISSES];
             _sparseSet2 = new int[dictionarySize * CACHE_MISSES];
-            _sparseSetEntities = new Test[dictionarySize * CACHE_MISSES];
             
+            _sparseHash1 = new FasterDictionary<int, int>(dictionarySize * CACHE_MISSES);
+            _sparseHash2 = new FasterDictionary<int, int>(dictionarySize * CACHE_MISSES);
+            
+            _sparseSetEntities = new Test[dictionarySize * CACHE_MISSES];
+
             _positionsSet = new Vector3[dictionarySize * CACHE_MISSES];
             _rotationsSet = new Vector4[dictionarySize * CACHE_MISSES];
             _velocitiesSet = new Vector3[dictionarySize * CACHE_MISSES];
@@ -75,11 +83,12 @@ namespace Svelto.DataStructures
             for (int i = 0; i < dictionarySize * CACHE_MISSES; i++)
             {
                 _sparseSet1[i] = _sparseSet2[i] = i;
+                _sparseHash1[i] = _sparseHash2[i] = i;
                 _sparseSetEntities[i] = new Test();
             }
         }
 
-        [Benchmark, BenchmarkCategory("SOA")]
+        [Benchmark, BenchmarkCategory("AOS")]
         public void SeparateArraysStrategyReal()
         {
             for (int i = 0; i < CACHE_MISSES; i++)
@@ -87,20 +96,20 @@ namespace Svelto.DataStructures
                 var vector3s = _positionsSeparate[i];
                 var vector3s1 = _velocitiesSeparate[i];
                 var vector4s = _rotationsSeparate[i];
-                
+
                 for (int j = 0; j < dictionarySize; j++)
                 {
                     vector3s[j] = vector3s1[j];
-                    vector4s[j]= new Vector4(2, 2, 2, 2);
+                    vector4s[j] = new Vector4(2, 2, 2, 2);
                 }
             }
         }
-        
-        [Benchmark, BenchmarkCategory("AOS")]
+
+        [Benchmark, BenchmarkCategory("SOA")]
         public void SeparateArraysStrategy()
         {
             var separateArraysStrategy = _separateArraysStrategy;
-            
+
             for (int i = 0; i < CACHE_MISSES; i++)
             {
                 for (int j = 0; j < dictionarySize; j++)
@@ -110,27 +119,27 @@ namespace Svelto.DataStructures
                 }
             }
         }
-        
+
         [Benchmark, BenchmarkCategory("SOA")]
         public void SparseSetStrategy()
         {
             var sparseSetEntities = _sparseSetEntities;
             var sparseSet1 = _sparseSet1;
             var sparseSet2 = _sparseSet2;
-            
+
             for (int j = 0; j < dictionarySize * CACHE_MISSES; j++)
             {
                 sparseSetEntities[j].position = sparseSetEntities[sparseSet1[j]].velocity;
                 sparseSetEntities[sparseSet2[j]].rotation = new Vector4(2, 2, 2, 2);
             }
         }
-        
+
         [Benchmark, BenchmarkCategory("AOS")]
         public void SparseSetStrategyReal()
         {
             var sparseSet1 = _sparseSet1;
             var sparseSet2 = _sparseSet2;
-            
+
             for (int j = 0; j < dictionarySize * CACHE_MISSES; j++)
             {
                 _positionsSet[j] = _velocitiesSet[sparseSet2[j]];
@@ -139,24 +148,51 @@ namespace Svelto.DataStructures
         }
         
         [Benchmark, BenchmarkCategory("SOA")]
+        public void SparseHashStrategy()
+        {
+            var sparseSetEntities = _sparseSetEntities;
+            var sparseSet1 = _sparseHash1;
+            var sparseSet2 = _sparseHash2;
+
+            for (int j = 0; j < dictionarySize * CACHE_MISSES; j++)
+            {
+                sparseSetEntities[j].position = sparseSetEntities[sparseSet1[j]].velocity;
+                sparseSetEntities[sparseSet2[j]].rotation = new Vector4(2, 2, 2, 2);
+            }
+        }
+
+        [Benchmark, BenchmarkCategory("AOS")]
+        public void SparseHashStrategyReal()
+        {
+            var sparseSet1 = _sparseHash1;
+            var sparseSet2 = _sparseHash2;
+
+            for (int j = 0; j < dictionarySize * CACHE_MISSES; j++)
+            {
+                _positionsSet[j] = _velocitiesSet[sparseSet2[j]];
+                _rotationsSet[sparseSet1[j]] = new Vector4(2, 2, 2, 2);
+            }
+        }
+
+        [Benchmark, BenchmarkCategory("SOA")]
         public void CopyStrategy()
         {
             var sparseSetEntities = _sparseSetEntities;
             var separateArraysStrategy = _separateArraysStrategy;
-            
+
             for (int i = 0; i < CACHE_MISSES; i++)
                 Array.Copy(sparseSetEntities, i * CACHE_MISSES, separateArraysStrategy[i], 0, dictionarySize);
-            
+
             for (int j = 0; j < dictionarySize * CACHE_MISSES; j++)
             {
                 sparseSetEntities[j].position = sparseSetEntities[j].velocity;
                 sparseSetEntities[j].rotation = new Vector4(2, 2, 2, 2);
             }
-            
+
             for (int i = 0; i < CACHE_MISSES; i++)
                 Array.Copy(separateArraysStrategy[i], 0, sparseSetEntities, i * CACHE_MISSES, dictionarySize);
         }
-        
+
         [Benchmark, BenchmarkCategory("AOS")]
         public void CopyStrategyReal()
         {
@@ -166,14 +202,13 @@ namespace Svelto.DataStructures
                 Array.Copy(_rotationsSet, i * CACHE_MISSES, _rotationsSeparate[i], 0, dictionarySize);
                 Array.Copy(_velocitiesSet, i * CACHE_MISSES, _velocitiesSeparate[i], 0, dictionarySize);
             }
-            
+
             for (int j = 0; j < dictionarySize * CACHE_MISSES; j++)
             {
                 _positionsSet[j] = _velocitiesSet[j];
                 _rotationsSet[j] = new Vector4(2, 2, 2, 2);
             }
-            
-            
+
             for (int i = 0; i < CACHE_MISSES; i++)
             {
                 Array.Copy(_positionsSeparate[i], 0, _positionsSet, i * CACHE_MISSES, dictionarySize);
@@ -181,14 +216,10 @@ namespace Svelto.DataStructures
                 Array.Copy(_velocitiesSeparate[i], 0, _velocitiesSet, i * CACHE_MISSES, dictionarySize);
             }
         }
-        
     }
 
     class Program
     {
-        static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<ECSStrategiesBenchmark>();
-        }
+        static void Main(string[] args) { BenchmarkRunner.Run<ECSStrategiesBenchmark>(); }
     }
 }

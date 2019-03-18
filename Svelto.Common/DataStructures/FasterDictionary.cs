@@ -376,6 +376,7 @@ namespace Svelto.DataStructures.Experimental
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static uint GetIndex(TKey key, int[] buckets, Node[] valuesInfo)
         {
             if (FindIndex(key, buckets, valuesInfo, out var findIndex)) return findIndex;
@@ -383,6 +384,7 @@ namespace Svelto.DataStructures.Experimental
             throw new FasterDictionaryException("Key not found");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool FindIndex(TKey key, int[] buckets, Node[] valuesInfo, out uint findIndex)
         {
             int hash        = Hash(key);
