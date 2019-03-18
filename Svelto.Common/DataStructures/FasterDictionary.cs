@@ -162,24 +162,22 @@ namespace Svelto.DataStructures.Experimental
                 _valuesInfo[_freeValueCellIndex] = new Node(ref key, hash);
             else //collision or already exists
             {
+                int currentValueIndex = valueIndex;
+                do
                 {
-                    int currentValueIndex = valueIndex;
-                    do
+                    //must check if the key already exists in the dictionary
+                    //for some reason this is faster than using Comparer<TKey>.default, should investigate
+                    if (_valuesInfo[currentValueIndex].hashcode == hash &&
+                        _valuesInfo[currentValueIndex].key.CompareTo(key) == 0)
                     {
-                        //must check if the key already exists in the dictionary
-                        //for some reason this is faster than using Comparer<TKey>.default, should investigate
-                        if (_valuesInfo[currentValueIndex].hashcode == hash &&
-                            _valuesInfo[currentValueIndex].key.CompareTo(key) == 0)
-                        {
-                            //the key already exists, simply replace the value!
-                            _values[currentValueIndex] = value;
-                            return false;
-                        }
-
-                        currentValueIndex = _valuesInfo[currentValueIndex].previous;
+                        //the key already exists, simply replace the value!
+                        _values[currentValueIndex] = value;
+                        return false;
                     }
-                    while (currentValueIndex != -1); //-1 means no more values with key with the same hash
+
+                    currentValueIndex = _valuesInfo[currentValueIndex].previous;
                 }
+                while (currentValueIndex != -1); //-1 means no more values with key with the same hash
 
                 //oops collision!
                 _collisions++;
