@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Svelto.DataStructures.ArrayBenchmark</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.4, OS=Windows 10.0.17134.648 (1803/April2018Update/Redstone4)
+Intel Core i7-4790K CPU 4.00GHz (Haswell), 1 CPU, 8 logical and 4 physical cores
+Frequency=3906253 Hz, Resolution=255.9998 ns, Timer=TSC
+  [Host]     : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3362.0
+  Job-FQKGZY : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3362.0
+  Job-YTBJBT : .NET Core 3.0.0-preview3-27503-5 (CoreCLR 4.6.27422.72, CoreFX 4.7.19.12807), 64bit RyuJIT
+  Job-KXRVUO : .NET CoreRT 1.0.27614.0 @BuiltBy: smandala-SEB-PC @Branch: master @Commit: 7e9da08c0f45d4661a8b2daddcf14932525de05c, 64bit AOT
+  Job-XIDDXQ : Mono 5.18.0 (Visual Studio), 64bit 
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>                         Method</th><th>Runtime</th><th>             Toolchain</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th>
+</tr>
+</thead><tbody><tr><td>StandardArrayInsert</td><td>Clr</td><td>net472</td><td>4.779 ms</td><td>0.1029 ms</td><td>0.1540 ms</td><td>4.732 ms</td><td>0.79</td><td>0.03</td>
+</tr><tr><td>StandardArrayInsert</td><td>Core</td><td>netcoreapp3.0</td><td>4.862 ms</td><td>0.0652 ms</td><td>0.0578 ms</td><td>4.860 ms</td><td>0.79</td><td>0.01</td>
+</tr><tr><td>StandardArrayInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>4.689 ms</td><td>0.0452 ms</td><td>0.0378 ms</td><td>4.688 ms</td><td>0.77</td><td>0.01</td>
+</tr><tr><td>StandardArrayInsert</td><td>Mono</td><td>Default</td><td>6.118 ms</td><td>0.0473 ms</td><td>0.0442 ms</td><td>6.108 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>StandardUnmanagedArrayInsert</td><td>Clr</td><td>net472</td><td>4.505 ms</td><td>0.0894 ms</td><td>0.0878 ms</td><td>4.509 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsert</td><td>Core</td><td>netcoreapp3.0</td><td>4.510 ms</td><td>0.0614 ms</td><td>0.0575 ms</td><td>4.503 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>4.462 ms</td><td>0.0380 ms</td><td>0.0356 ms</td><td>4.463 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsert</td><td>Mono</td><td>Default</td><td>4.955 ms</td><td>0.0395 ms</td><td>0.0369 ms</td><td>4.944 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsert</td><td>Clr</td><td>net472</td><td>4.679 ms</td><td>0.0934 ms</td><td>0.2344 ms</td><td>4.607 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsert</td><td>Core</td><td>netcoreapp3.0</td><td>4.640 ms</td><td>0.0928 ms</td><td>0.2362 ms</td><td>4.528 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>4.480 ms</td><td>0.0382 ms</td><td>0.0319 ms</td><td>4.484 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsert</td><td>Mono</td><td>Default</td><td>4.946 ms</td><td>0.0508 ms</td><td>0.0475 ms</td><td>4.928 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsert</td><td>Clr</td><td>net472</td><td>16.397 ms</td><td>0.3234 ms</td><td>0.3460 ms</td><td>16.340 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsert</td><td>Core</td><td>netcoreapp3.0</td><td>16.004 ms</td><td>0.0976 ms</td><td>0.0913 ms</td><td>16.023 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>15.917 ms</td><td>0.1226 ms</td><td>0.1147 ms</td><td>15.945 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsert</td><td>Mono</td><td>Default</td><td>29.634 ms</td><td>0.2573 ms</td><td>0.2407 ms</td><td>29.690 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsert</td><td>Clr</td><td>net472</td><td>7.685 ms</td><td>0.0998 ms</td><td>0.0933 ms</td><td>7.692 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsert</td><td>Core</td><td>netcoreapp3.0</td><td>4.928 ms</td><td>0.0246 ms</td><td>0.0230 ms</td><td>4.932 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>4.902 ms</td><td>0.0257 ms</td><td>0.0215 ms</td><td>4.893 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsert</td><td>Mono</td><td>Default</td><td>14.000 ms</td><td>0.1209 ms</td><td>0.1131 ms</td><td>14.007 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsert</td><td>Clr</td><td>net472</td><td>7.706 ms</td><td>0.0454 ms</td><td>0.0402 ms</td><td>7.718 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsert</td><td>Core</td><td>netcoreapp3.0</td><td>4.963 ms</td><td>0.0190 ms</td><td>0.0177 ms</td><td>4.961 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>4.915 ms</td><td>0.0273 ms</td><td>0.0255 ms</td><td>4.922 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsert</td><td>Mono</td><td>Default</td><td>12.672 ms</td><td>0.0375 ms</td><td>0.0351 ms</td><td>12.681 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsert</td><td>Clr</td><td>net472</td><td>4.888 ms</td><td>0.0245 ms</td><td>0.0217 ms</td><td>4.892 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsert</td><td>Core</td><td>netcoreapp3.0</td><td>4.907 ms</td><td>0.0165 ms</td><td>0.0154 ms</td><td>4.901 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsert</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>4.954 ms</td><td>0.0250 ms</td><td>0.0234 ms</td><td>4.953 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsert</td><td>Mono</td><td>Default</td><td>5.173 ms</td><td>0.0543 ms</td><td>0.0508 ms</td><td>5.170 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardArrayInsertChecked</td><td>Clr</td><td>net472</td><td>9.943 ms</td><td>0.1525 ms</td><td>0.1273 ms</td><td>10.002 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardArrayInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>9.884 ms</td><td>0.0557 ms</td><td>0.0521 ms</td><td>9.894 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardArrayInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>9.963 ms</td><td>0.1039 ms</td><td>0.0972 ms</td><td>9.974 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardArrayInsertChecked</td><td>Mono</td><td>Default</td><td>9.864 ms</td><td>0.0782 ms</td><td>0.0732 ms</td><td>9.840 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsertChecked</td><td>Clr</td><td>net472</td><td>9.965 ms</td><td>0.1772 ms</td><td>0.1657 ms</td><td>9.952 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>9.856 ms</td><td>0.0739 ms</td><td>0.0655 ms</td><td>9.862 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>10.118 ms</td><td>0.3387 ms</td><td>0.5752 ms</td><td>9.794 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedArrayInsertChecked</td><td>Mono</td><td>Default</td><td>9.693 ms</td><td>0.0613 ms</td><td>0.0512 ms</td><td>9.690 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsertChecked</td><td>Clr</td><td>net472</td><td>10.447 ms</td><td>0.2051 ms</td><td>0.4097 ms</td><td>10.488 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>9.855 ms</td><td>0.0731 ms</td><td>0.0684 ms</td><td>9.819 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>9.992 ms</td><td>0.1168 ms</td><td>0.1093 ms</td><td>9.984 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardPinnedArrayInsertChecked</td><td>Mono</td><td>Default</td><td>9.860 ms</td><td>0.0704 ms</td><td>0.0658 ms</td><td>9.883 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsertChecked</td><td>Clr</td><td>net472</td><td>13.905 ms</td><td>0.2169 ms</td><td>0.2029 ms</td><td>13.912 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>13.424 ms</td><td>0.0504 ms</td><td>0.0394 ms</td><td>13.419 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>13.451 ms</td><td>0.2548 ms</td><td>0.2384 ms</td><td>13.400 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardListInsertChecked</td><td>Mono</td><td>Default</td><td>14.111 ms</td><td>0.0390 ms</td><td>0.0304 ms</td><td>14.108 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsertChecked</td><td>Clr</td><td>net472</td><td>10.327 ms</td><td>0.2021 ms</td><td>0.2963 ms</td><td>10.350 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>9.921 ms</td><td>0.0489 ms</td><td>0.0457 ms</td><td>9.914 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>9.922 ms</td><td>0.1527 ms</td><td>0.1428 ms</td><td>9.922 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardManagedSpanInsertChecked</td><td>Mono</td><td>Default</td><td>10.040 ms</td><td>0.0862 ms</td><td>0.0807 ms</td><td>10.053 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsertChecked</td><td>Clr</td><td>net472</td><td>9.934 ms</td><td>0.2766 ms</td><td>0.2840 ms</td><td>9.799 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>9.871 ms</td><td>0.0702 ms</td><td>0.0622 ms</td><td>9.883 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>9.844 ms</td><td>0.0872 ms</td><td>0.0815 ms</td><td>9.829 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanInsertChecked</td><td>Mono</td><td>Default</td><td>9.766 ms</td><td>0.0812 ms</td><td>0.0760 ms</td><td>9.769 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsertChecked</td><td>Clr</td><td>net472</td><td>10.697 ms</td><td>0.2134 ms</td><td>0.5546 ms</td><td>10.560 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsertChecked</td><td>Core</td><td>netcoreapp3.0</td><td>9.930 ms</td><td>0.1229 ms</td><td>0.1150 ms</td><td>9.921 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsertChecked</td><td>CoreRT</td><td>Core RT 1.0.0-alpha-27515-01</td><td>9.910 ms</td><td>0.1249 ms</td><td>0.1168 ms</td><td>9.876 ms</td><td>?</td><td>?</td>
+</tr><tr><td>StandardUnmanagedSpanBenInsertChecked</td><td>Mono</td><td>Default</td><td>10.262 ms</td><td>0.3184 ms</td><td>0.5406 ms</td><td>9.980 ms</td><td>?</td><td>?</td>
+</tr></tbody></table>
+</body>
+</html>

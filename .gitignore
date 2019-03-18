@@ -17,3 +17,7 @@ ArrayBenchmarks/obj/
 DictionaryBenchmarks/bin/
 DictionaryBenchmarks/obj/
 SpanMemoryWrapper/obj/
+*.log
+ECSStrategiesBenchmark/bin/Debug/net472/
+ECSStrategiesBenchmark/bin/
+ECSStrategiesBenchmark/obj/

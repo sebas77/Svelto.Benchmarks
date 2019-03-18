@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Svelto.DataStructures.ECSStrategiesBenchmark</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.4, OS=Windows 10.0.17134.648 (1803/April2018Update/Redstone4)
+Intel Core i7-4790K CPU 4.00GHz (Haswell), 1 CPU, 8 logical and 4 physical cores
+Frequency=3906253 Hz, Resolution=255.9998 ns, Timer=TSC
+  [Host] : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3362.0
+  Mono   : Mono 5.18.0 (Visual Studio), 64bit 
+</code></pre>
+<pre><code>Job=Mono  Runtime=Mono  
+</code></pre>
+
+<table>
+<thead><tr><th>              Method</th><th>Mean</th><th>Error</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>SeparateArraysStrategyReal</td><td>4.909 ms</td><td>0.0567 ms</td><td>0.0531 ms</td>
+</tr><tr><td>SparseSetStrategy</td><td>4.381 ms</td><td>0.0399 ms</td><td>0.0373 ms</td>
+</tr><tr><td>CopyStrategy</td><td>9.601 ms</td><td>0.1148 ms</td><td>0.1074 ms</td>
+</tr><tr><td>SeparateArraysStrategy</td><td>4.363 ms</td><td>0.0624 ms</td><td>0.0584 ms</td>
+</tr><tr><td>SparseSetStrategyReal</td><td>4.968 ms</td><td>0.0454 ms</td><td>0.0402 ms</td>
+</tr><tr><td>CopyStrategyReal</td><td>10.372 ms</td><td>0.0701 ms</td><td>0.0621 ms</td>
+</tr></tbody></table>
+</body>
+</html>
