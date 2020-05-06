@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Svelto.ObjectPool
 {
-    public class ObjectPool<T> : IObjectPool<T>
-#if DEBUG
+    public class ObjectPool<T> : IObjectPool<T>, IDisposable
+#if DEBUG && !PROFILE_SVELTO
                                , IObjectPoolDebug
 #endif
-        where T : class, new()
+        where T : class
     {
-#if DEBUG
+#if DEBUG && !PROFILE_SVELTO
         readonly HashSet<T> alreadyRecycled = new HashSet<T>();
 #endif
 
@@ -17,11 +17,24 @@ namespace Svelto.ObjectPool
         {
             _pools.Clear();
             _namedPools.Clear();
-#if DEBUG
+#if DEBUG && !PROFILE_SVELTO
             alreadyRecycled.Clear();
 #endif
         }
 
+        public virtual void OnDispose()
+        { }
+        
+        public void Dispose()
+        {
+            OnDispose();
+
+            _pools.Clear();
+            _namedPools.Clear();
+
+            _disposed = true;
+        }
+        
         public virtual void Recycle(T go, int pool)
         {
             InternalRecycle(go, pool);
@@ -99,9 +112,10 @@ namespace Svelto.ObjectPool
             return ret;
         }
 
-        protected void InternalRecycle(T obj, int pool)
+        private void InternalRecycle(T obj, int pool)
         {
-#if DEBUG
+            if (_disposed) return;
+#if DEBUG && !PROFILE_SVELTO
             if (alreadyRecycled.Add(obj) == false)
                 throw new Exception("An object already Recycled in the pool has been Recycled again");
 #endif
@@ -113,9 +127,10 @@ namespace Svelto.ObjectPool
             _objectsRecyled++;
         }
 
-        protected void InternalRecycle(T obj, string poolName)
+        private void InternalRecycle(T obj, string poolName)
         {
-#if DEBUG
+            if (_disposed) return;
+#if DEBUG && !PROFILE_SVELTO
             if (alreadyRecycled.Add(obj) == false)
                 throw new Exception("An object already Recycled in the pool has been Recycled again");
 #endif
@@ -151,9 +166,7 @@ namespace Svelto.ObjectPool
 
         Stack<T> ReturnValidPool(int pool)
         {
-            Stack<T> localPool;
-
-            if (_pools.TryGetValue(pool, out localPool) == false)
+            if (_pools.TryGetValue(pool, out var localPool) == false)
                 _pools[pool] = localPool = new Stack<T>();
 
             return localPool;
@@ -161,9 +174,7 @@ namespace Svelto.ObjectPool
 
         Stack<T> ReturnValidPool(string poolName)
         {
-            Stack<T> localPool;
-
-            if (_namedPools.TryGetValue(poolName, out localPool) == false)
+            if (_namedPools.TryGetValue(poolName, out var localPool) == false)
                 localPool = _namedPools[poolName] = new Stack<T>();
 
             return localPool;
@@ -184,7 +195,7 @@ namespace Svelto.ObjectPool
             }
             else
             {
-#if DEBUG
+#if DEBUG && !PROFILE_SVELTO
                 alreadyRecycled.Remove(obj);
 #endif
                 _objectsReused++;
@@ -198,14 +209,15 @@ namespace Svelto.ObjectPool
             return aObj == null || aObj.Equals(null);
         }
 
-        Dictionary<int, Stack<T>>    _pools      = new Dictionary<int, Stack<T>>();
-        Dictionary<string, Stack<T>> _namedPools = new Dictionary<string, Stack<T>>();
+        protected readonly Dictionary<int, Stack<T>>    _pools      = new Dictionary<int, Stack<T>>();
+        protected readonly Dictionary<string, Stack<T>> _namedPools = new Dictionary<string, Stack<T>>();
 
         int _objectsReused;
         int _objectsCreated;
         int _objectsRecyled;
+        bool _disposed;
 
-#if DEBUG
+#if DEBUG && !PROFILE_SVELTO
         public List<ObjectPoolDebugStructureInt> DebugPoolInfo(List<ObjectPoolDebugStructureInt> debugInfo)
         {
             debugInfo.Clear();

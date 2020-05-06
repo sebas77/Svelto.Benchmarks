@@ -1,64 +1,47 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 #pragma warning disable 660,661
 
 namespace Svelto.ECS
 {
-    public struct EGID:IEquatable<EGID>,IEqualityComparer<EGID>,IComparable<EGID>
+    //todo: add debug map
+    [Serialization.DoNotSerialize]
+    [Serializable]
+    [StructLayout(LayoutKind.Explicit)]
+    public struct EGID:IEquatable<EGID>,IComparable<EGID>
     {
-        readonly ulong _GID;
+        [FieldOffset(0)] public readonly uint                 entityID;
+        [FieldOffset(4)] public readonly ExclusiveGroupStruct groupID;
+        [FieldOffset(0)]        readonly ulong                _GID;
         
-        public EGID(uint entityID, ExclusiveGroup.ExclusiveGroupStruct groupID) : this()
-        {
-            DBC.ECS.Check.Require(entityID < bit22, "the entityID value is outside the range");
-            DBC.ECS.Check.Require(groupID < bit20, "the groupID value is outside the range");
-            
-            _GID = MAKE_GLOBAL_ID(entityID, groupID, 0);
-        }
-
-        const uint bit22 = 0b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0011_1111_1111_1111_1111_1111;
-        const uint bit20 = 0b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_1111_1111_1111_1111_1111;
-        const long bit42 = 0b0000_0000_0000_0000_0000_0011_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
-
-        public uint entityID
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return (uint) (_GID & bit22); }
-        }
-
-        public ExclusiveGroup.ExclusiveGroupStruct groupID =>
-            new ExclusiveGroup.ExclusiveGroupStruct((uint) ((_GID >> 22) & bit20));
-
-        public uint maskedGID => (uint) _GID >> 42;
-
         public static bool operator ==(EGID obj1, EGID obj2)
         {
-            return obj1.maskedGID == obj2.maskedGID;
-        }    
-        
+            return obj1._GID == obj2._GID;
+        }
+
         public static bool operator !=(EGID obj1, EGID obj2)
         {
-            return obj1.maskedGID != obj2.maskedGID;
+            return obj1._GID != obj2._GID;
         }
-//            22       20        22        
-//        | realid | groupid | entityID |
-        
-        static ulong MAKE_GLOBAL_ID(uint entityId, uint groupId, uint realId)
+
+        public EGID(uint entityID, ExclusiveGroupStruct groupID) : this()
         {
-            return (((ulong)realId & bit22) << (22+20)) | (((ulong)groupId & bit20) << 22) | ((ulong)entityId & bit22);
+            _GID = MAKE_GLOBAL_ID(entityID, groupID);
+        }
+
+        static ulong MAKE_GLOBAL_ID(uint entityId, uint groupId)
+        {
+            return (ulong)groupId << 32 | ((ulong)entityId & 0xFFFFFFFF);
         }
 
         public static explicit operator uint(EGID id)
         {
             return id.entityID;
         }
-        
-        public static explicit operator ulong(EGID id)
-        {
-            return id._GID & bit42;
-        }
+
+        //in the way it's used, ulong must be always the same for each id/group
+        public static explicit operator ulong(EGID id) { return id._GID; }
 
         public bool Equals(EGID other)
         {
@@ -67,10 +50,18 @@ namespace Svelto.ECS
 
         public bool Equals(EGID x, EGID y)
         {
-            return x._GID == y._GID;
+            return x == y;
         }
 
-        public int GetHashCode(EGID egid) { return (int) _GID.GetHashCode(); }
+        public override int GetHashCode()
+        {
+            return _GID.GetHashCode();
+        }
+
+        public int GetHashCode(EGID egid)
+        {
+            return egid.GetHashCode();
+        }
 
         public int CompareTo(EGID other)
         {
@@ -79,17 +70,12 @@ namespace Svelto.ECS
         
         internal EGID(uint entityID, uint groupID) : this()
         {
-            _GID = MAKE_GLOBAL_ID(entityID, groupID, 0);
+            _GID = MAKE_GLOBAL_ID(entityID, groupID);
         }
-        
-        internal EGID(uint entityID, uint groupID, uint realid) : this()
+
+        public override string ToString()
         {
-            _GID = MAKE_GLOBAL_ID(entityID, groupID, realid);
-        }
-        
-        internal EGID(ulong egid) : this()
-        {
-            _GID = egid;
+            return "id ".FastConcat(entityID).FastConcat(" group ").FastConcat(groupID);
         }
     }
 }

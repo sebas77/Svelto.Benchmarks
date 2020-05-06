@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
-using Svelto.DataStructures.Experimental;
 
 namespace Svelto.DataStructures
 {
@@ -17,8 +16,8 @@ namespace Svelto.DataStructures
     }
 
     //[DisassemblyDiagnoser(printAsm: true, printSource: true)] // !!! use the new diagnoser!!
-    [MonoJob]
-    //[RyuJitX64Job]
+    //[MonoJob]
+    [RyuJitX64Job]
     // [EtwProfiler]
     //   [HardwareCounters(HardwareCounter.BranchMispredictions,HardwareCounter.BranchInstructions)]
     //[MaxWarmupCount(2)]
@@ -71,8 +70,8 @@ namespace Svelto.DataStructures
             _sparseSet1 = new int[dictionarySize * CACHE_MISSES];
             _sparseSet2 = new int[dictionarySize * CACHE_MISSES];
             
-            _sparseHash1 = new FasterDictionary<int, int>(dictionarySize * CACHE_MISSES);
-            _sparseHash2 = new FasterDictionary<int, int>(dictionarySize * CACHE_MISSES);
+            _sparseHash1 = new FasterDictionary<int, int>((uint) (dictionarySize * CACHE_MISSES));
+            _sparseHash2 = new FasterDictionary<int, int>((uint) (dictionarySize * CACHE_MISSES));
             
             _sparseSetEntities = new Test[dictionarySize * CACHE_MISSES];
 

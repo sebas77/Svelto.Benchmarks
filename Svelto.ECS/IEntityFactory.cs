@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using Svelto.ECS.Internal;
+
 namespace Svelto.ECS
 {
     /// <summary>
@@ -12,38 +15,41 @@ namespace Svelto.ECS
     ///{
     ///   public static readonly ExclusiveGroups PlayerEntitiesGroup = new ExclusiveGroups();
     ///}
-    /// 
+    ///
     /// </summary>
     public interface IEntityFactory
     {
-    /// <summary>
-        ///where performance is critical, you may wish to pre allocate the space needed
-        ///to store the entities
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="size"></param>
-        void PreallocateEntitySpace<T>(ExclusiveGroup.ExclusiveGroupStruct groupStructId, int size)
+        ///  <summary>
+        /// where performance is critical, you may wish to pre allocate the space needed
+        /// to store the entities
+        ///  </summary>
+        ///  <typeparam name="T"></typeparam>
+        ///  <param name="groupStructId"></param>
+        ///  <param name="size"></param>
+        void PreallocateEntitySpace<T>(ExclusiveGroupStruct groupStructId, uint size)
             where T : IEntityDescriptor, new();
-        
+
         /// <summary>
         ///     The EntityDescriptor doesn't need to be ever instantiated. It just describes the Entity
-        ///     itself in terms of EntityViews to build. The Implementors are passed to fill the
-        ///     references of the EntityViews components. Please read the articles on my blog
+        ///     itself in terms of EntityComponents to build. The Implementors are passed to fill the
+        ///     references of the EntityComponents components. Please read the articles on my blog
         ///     to understand better the terminologies
         ///     Using this function is like building a normal entity, but the entity views
         ///     are grouped by groupID to be more efficiently processed inside engines and
-        ///     improve cache locality. Either class entityViews and struct entityViews can be
+        ///     improve cache locality. Either class entityComponents and struct entityComponents can be
         ///     grouped.
         /// </summary>
         /// <param name="entityID"></param>
         /// <param name="groupStructId"></param>
         /// <param name="ed"></param>
         /// <param name="implementors"></param>
-        EntityStructInitializer BuildEntity<T>(uint entityID, ExclusiveGroup.ExclusiveGroupStruct groupStructId,
-                                               object[] implementors = null) 
+        EntityComponentInitializer BuildEntity<T>(uint entityID, ExclusiveGroupStruct groupStructId,
+                                               IEnumerable<object> implementors = null)
             where T : IEntityDescriptor, new();
-        EntityStructInitializer BuildEntity<T>(EGID egid, object[] implementors = null) 
-            where T:IEntityDescriptor, new();
+
+        EntityComponentInitializer BuildEntity<T>(EGID egid, IEnumerable<object> implementors = null)
+            where T : IEntityDescriptor, new();
+
         /// <summary>
         ///     When the type of the entity is not known (this is a special case!) an EntityDescriptorInfo
         ///     can be built in place of the generic parameter T.
@@ -51,12 +57,16 @@ namespace Svelto.ECS
         /// <param name="entityID"></param>
         /// <param name="entityDescriptor"></param>
         /// <param name="implementors"></param>
-        /// 
-        EntityStructInitializer BuildEntity<T>(uint      entityID, ExclusiveGroup.ExclusiveGroupStruct groupStructId,
-                                               T        descriptorEntity,
-                                               object[] implementors = null)
+        ///
+        EntityComponentInitializer BuildEntity<T>(uint entityID, ExclusiveGroupStruct groupStructId,
+                                               T    descriptorEntity, IEnumerable<object>  implementors = null)
             where T : IEntityDescriptor;
-        EntityStructInitializer BuildEntity<T>(EGID egid, T entityDescriptor, object[] implementors = null)
+
+        EntityComponentInitializer BuildEntity<T>(EGID egid, T entityDescriptor, IEnumerable<object> implementors = null)
             where T : IEntityDescriptor;
+
+#if UNITY_ECS
+        NativeEntityFactory ToNative<T>() where T : IEntityDescriptor, new();
+#endif        
     }
 }

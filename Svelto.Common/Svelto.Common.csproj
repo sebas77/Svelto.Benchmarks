@@ -12,7 +12,6 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <UseSharedCompilation>false</UseSharedCompilation>
-    <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD2_0;PROFILER</DefineConstants>
   </PropertyGroup>
 
     <ItemGroup>
