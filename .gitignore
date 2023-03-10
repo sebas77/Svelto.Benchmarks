@@ -21,3 +21,11 @@ SpanMemoryWrapper/obj/
 ECSStrategiesBenchmark/bin/Debug/net472/
 ECSStrategiesBenchmark/bin/
 ECSStrategiesBenchmark/obj/
+
+com.sebaslab.svelto.ecs/obj/
+
+com.sebaslab.svelto.ecs/bin/Release/netstandard2.1/
+
+com.sebaslab.svelto.ecs/bin/Debug/netstandard2.1/
+
+com.sebaslab.svelto.common/
